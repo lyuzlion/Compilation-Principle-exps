@@ -1,192 +1,62 @@
-#include <bits/stdc++.h>
-using namespace std;
+#include <iostream>
+#include <map>
+#include <list>
+#include <string>
+#include <vector>
+#include <utility>
+#include "main.hpp"
+#include "util.hpp"
 
-enum State {
-    INIT,
-    READING_WORD,
-    READING_NUMBER,
-};
+std::list<std::pair<std::string, std::string>> output;
 
-const map<string, string> keywords = {
-    {"int", "INTSYM"},
-    {"double", "DOUBLESYM"},
-    {"scanf", "SCANFSYM"},
-    {"printf", "PRINTFSYM"},
-    {"if", "IFSYM"},
-    {"then", "THENSYM"},
-    {"while", "WHILESYM"},
-    {"do", "DOSYM"}};
-
-const map<string, string> symbols = {
-    {"=", "AO"},
-    {"==", "RO"},
-    {">", "RO"},
-    {">=", "RO"},
-    {"<", "RO"},
-    {"<=", "RO"},
-    {"||", "LO"},
-    {"&&", "LO"},
-    {"!", "LO"},
-    {"!=", "RO"},
-    {"+", "PLUS"},
-    {"-", "MINUS"},
-    {"*", "TIMES"},
-    {"/", "DIVISION"},
-    {",", "COMMA"},
-    {"(", "BRACE"},
-    {")", "BRACE"},
-    {"{", "BRACE"},
-    {"}", "BRACE"},
-    {";", "SEMICOLON"}};
-
-string input;
-string cuttentToken;
-State state = INIT;
-int currentPos = 0;
-list<pair<string, string>> output;
-
-bool isDigit(char c) {
-    return c >= '0' && c <= '9';
-}
-
-bool isLetter(char c) {
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
-}
-
-bool canInWord(char c) {
-    return isLetter(c) || isDigit(c);
-}
-
-bool isSymbol(char c) {
-    return c == '+' || c == '-' || c == '*' || c == '/' || c == '=' || c == '>' || c == '<' || c == '!' || c == '&' || c == '|';
-}
-
-bool isCanEquSymbol(char c) {
-    return c == '=' || c == '>' || c == '<' || c == '!';
-}
-
-bool isMustRepeatSymbol(char c) {
-    return c == '&' || c == '|';
-}
-
-bool isSingleSymbol(char c) {
-    return c == '{' || c == '}' || c == ';' || c == '(' || c == ')' || c == ',' || c == '+' || c == '-' || c == '*' || c == '/';
-}
-
-void getInput() {
-    string line;
-    while (getline(cin, line))
-        input += line + "\n";
-}
-
-void preProcess()
-{
-    string temp;
-    for (int i = 0; i < input.size(); i++)
-    {
-        if (input[i] == '/' && input[i + 1] == '*')
-        {
-            i += 2;
-            while (input[i] != '*' || input[i + 1] != '/')
-                i++;
-            i += 2;
-        }
-        temp += input[i];
-    }
-    input = temp;
-    temp = "";
-    for (int i = 0; i < input.size(); i++)
-    {
-        if (input[i] == '/' && input[i + 1] == '/')
-        {
-            while (input[i] != '\n')
-            {
-                i++;
-            }
-        }
-        temp += input[i];
-    }
-    input = temp;
-    temp = "";
-    for (int i = 0; i < input.size(); i++) {
-        if (input[i] == '\n' || input[i] == '\t' || input[i] == '\r')
-            input[i] = ' ';
-    }
-    temp = "";
-    for (int i = 0; i < input.size(); i++) {
-        if (input[i] == ' ' && input[i + 1] == ' ')
-            continue;
-        temp += input[i];
-    }
-    input = temp;
-}
-
-string getToken()
-{
-    string token;
+std::string getToken() {
+    std::string token;
     state = INIT;
-    while (input[currentPos] == ' ' && currentPos < input.size())
+    while (code_src[currentPos] == ' ' && currentPos < code_src.size())
         currentPos++;
-    while (currentPos < input.size())
-    {
-        switch (state)
-        {
+    while (currentPos < code_src.size()) {
+        switch (state) {
         case INIT:
-            if (isLetter(input[currentPos]))
-            {
+            if (isalpha(code_src[currentPos])) {
                 state = READING_WORD;
-                token += input[currentPos];
-            }
-            else if (isDigit(input[currentPos]) || input[currentPos] == '.')
-            {
+                token += code_src[currentPos];
+            } else if (isdigit(code_src[currentPos]) || code_src[currentPos] == '.') {
                 state = READING_NUMBER;
-                token += input[currentPos];
-            }
-            else if (isCanEquSymbol(input[currentPos]))
-            {
-                token += input[currentPos];
+                token += code_src[currentPos];
+            } else if (std::string("=><!").find(code_src[currentPos]) != std::string::npos) {
+                token += code_src[currentPos];
                 currentPos++;
-                if (input[currentPos] == '=')
-                {
-                    token += input[currentPos];
+                if (code_src[currentPos] == '=') {
+                    token += code_src[currentPos];
                     currentPos++;
                 }
                 return token;
-            }
-            else if (isMustRepeatSymbol(input[currentPos]))
-            {
-                token += input[currentPos];
+            } else if (std::string("&|").find(code_src[currentPos]) != std::string::npos) {
+                token += code_src[currentPos];
                 currentPos++;
-                if (input[currentPos] == input[currentPos - 1])
-                {
-                    token += input[currentPos];
+                if (code_src[currentPos] == code_src[currentPos - 1]) {
+                    token += code_src[currentPos];
                     currentPos++;
                 }
                 return token;
-            }
-            else if (isSingleSymbol(input[currentPos]))
-            {
-                token += input[currentPos];
+            } else if (std::string("{};(),+-*/").find(code_src[currentPos]) != std::string::npos) {
+                token += code_src[currentPos];
                 currentPos++;
                 return token;
-            }
-            else
-            {
-                cout << "Unrecognizable characters.";
+            } else {
+                std::cout << "Unrecognizable characters.";
                 exit(0);
             }
             currentPos++;
             break;
         case READING_WORD:
-            if (isLetter(input[currentPos]) || isDigit(input[currentPos]))
-                token += input[currentPos];
-            else
-                return token;
+            if (std::isalpha(code_src[currentPos]) || std::isdigit(code_src[currentPos])) token += code_src[currentPos];
+            else return token;
             currentPos++;
             break;
         case READING_NUMBER:
-            if (isDigit(input[currentPos]) || input[currentPos] == '.')
-                token += input[currentPos];
+            if (std::isdigit(code_src[currentPos]) || code_src[currentPos] == '.')
+                token += code_src[currentPos];
             else return token;
             currentPos++;
             break;
@@ -197,50 +67,40 @@ string getToken()
     return token;
 }
 
-void parserToken(string &token)
+void parserToken(std::string &token)
 {
-    pair<string, string> temp;
+    std::pair<std::string, std::string> temp;
     temp.first = token;
 
     if (keywords.find(token) != keywords.end())
         temp.second = keywords.at(token);
     else if (symbols.find(token) != symbols.end())
         temp.second = symbols.at(token);
-    else if (isLetter(token[0]))
+    else if (std::isalpha(token[0]))
         temp.second = "IDENT";
-    else if (isDigit(token[0]) || token[0] == '.')
-    {
-        if (token[0] == '.' || token[token.size() - 1] == '.')
-        {
-            cout << "Malformed number: Decimal point at the beginning or end of a floating point number.";
+    else if (std::isdigit(token[0]) || token[0] == '.') {
+        if (token[0] == '.' || token[token.size() - 1] == '.') {
+            std::cout << "Malformed number: Decimal point at the beginning or end of a floating point number.";
             exit(0);
         }
-        if (token[0] == '0')
-        {
-            if (token.size() > 1)
-            {
-                if (token[1] != '.')
-                {
-                    cout << "Malformed number: Leading zeros in an integer.";
+        if (token[0] == '0') {
+            if (token.size() > 1) {
+                if (token[1] != '.') {
+                    std::cout << "Malformed number: Leading zeros in an integer.";
                     exit(0);
                 }
             }
         }
         bool hasDot = false;
-        for (int i = 0; i < token.size(); i++)
-        {
-            if (token[i] == '.')
-            {
-                if (hasDot)
-                {
-                    cout << "Malformed number: More than one decimal point in a floating point number.";
+        for (int i = 0; i < token.size(); i++) {
+            if (token[i] == '.') {
+                if (hasDot) {
+                    std::cout << "Malformed number: More than one decimal point in a floating point number.";
                     exit(0);
                 }
                 hasDot = true;
-            }
-            else if (!isDigit(token[i]))
-            {
-                cout << "Malformed number: Non-digit character in a number.";
+            } else if (!std::isdigit(token[i])) {
+                std::cout << "Malformed number: Non-digit character in a number.";
                 exit(0);
             }
         }
@@ -252,17 +112,21 @@ void parserToken(string &token)
 
 int main() {
     std::ios::sync_with_stdio(false);
-    cin.tie(0);
-    cout.tie(0);
-    getInput();
-    preProcess();
+    std::cin.tie(0);
+    std::cout.tie(0);
+    
+    read();
+    
+    init();
+    
     while (true) {
-        string token = getToken();
+        std::string token = getToken();
         if (token == "") break;
         parserToken(token);
     }
-    for (auto i : output) {
-        cout << i.first << " " << i.second << endl;
+
+    for (const auto& [first, second] : output) {
+        std::cout << first << " " << second << std::endl;
     }
     return 0;
 }
