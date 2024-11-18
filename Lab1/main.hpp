@@ -1,4 +1,6 @@
+#ifndef MAIN_HPP
 #include <map>
+#include <vector>
 #define INIT 0
 #define READING_WORD 1
 #define READING_NUMBER 2
@@ -35,6 +37,8 @@ const std::map<std::string, std::string> symbols = {
     {"}", "BRACE"},
     {";", "SEMICOLON"}};
 
-std::string code_src, cuttentToken;
+std::string code_src;
+std::vector<std::pair<std::string, std::string>> ans;
 int state = INIT;
-int currentPos = 0;
+int pos = 0;
+#endif

@@ -1,3 +1,5 @@
+#ifndef UTIL_HPP
+#define UTIL_HPP
 #include <string>
 #include <iostream>
 #include "main.hpp"
@@ -45,3 +47,4 @@ void init() {
     }
     code_src = temp;
 }
+#endif

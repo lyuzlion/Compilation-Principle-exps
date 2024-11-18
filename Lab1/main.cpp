@@ -4,71 +4,60 @@
 #include <string>
 #include <vector>
 #include <utility>
-#include "main.hpp"
 #include "util.hpp"
 
-std::list<std::pair<std::string, std::string>> output;
-
-std::string getToken() {
+std::string get_token() {
     std::string token;
     state = INIT;
-    while (code_src[currentPos] == ' ' && currentPos < code_src.size())
-        currentPos++;
-    while (currentPos < code_src.size()) {
-        switch (state) {
-        case INIT:
-            if (isalpha(code_src[currentPos])) {
+    while (pos < code_src.size() && code_src[pos] == ' ') pos++;
+    while (pos < code_src.size()) {
+        if (state == INIT) {
+            if (isalpha(code_src[pos])) {
                 state = READING_WORD;
-                token += code_src[currentPos];
-            } else if (isdigit(code_src[currentPos]) || code_src[currentPos] == '.') {
+                token += code_src[pos];
+            } else if (isdigit(code_src[pos]) || code_src[pos] == '.') {
                 state = READING_NUMBER;
-                token += code_src[currentPos];
-            } else if (std::string("=><!").find(code_src[currentPos]) != std::string::npos) {
-                token += code_src[currentPos];
-                currentPos++;
-                if (code_src[currentPos] == '=') {
-                    token += code_src[currentPos];
-                    currentPos++;
+                token += code_src[pos];
+            } else if (std::string("=><!").find(code_src[pos]) != std::string::npos) {
+                token += code_src[pos];
+                pos++;
+                if (code_src[pos] == '=') {
+                    token += code_src[pos];
+                    pos++;
                 }
                 return token;
-            } else if (std::string("&|").find(code_src[currentPos]) != std::string::npos) {
-                token += code_src[currentPos];
-                currentPos++;
-                if (code_src[currentPos] == code_src[currentPos - 1]) {
-                    token += code_src[currentPos];
-                    currentPos++;
+            } else if (std::string("&|").find(code_src[pos]) != std::string::npos) {
+                token += code_src[pos];
+                pos++;
+                if (code_src[pos] == code_src[pos - 1]) {
+                    token += code_src[pos];
+                    pos++;
                 }
                 return token;
-            } else if (std::string("{};(),+-*/").find(code_src[currentPos]) != std::string::npos) {
-                token += code_src[currentPos];
-                currentPos++;
+            } else if (std::string("{};(),+-*/").find(code_src[pos]) != std::string::npos) {
+                token += code_src[pos];
+                pos++;
                 return token;
             } else {
                 std::cout << "Unrecognizable characters.";
                 exit(0);
             }
-            currentPos++;
-            break;
-        case READING_WORD:
-            if (std::isalpha(code_src[currentPos]) || std::isdigit(code_src[currentPos])) token += code_src[currentPos];
+            pos++;
+        } else if (state == READING_WORD) {
+            if (std::isalpha(code_src[pos]) || std::isdigit(code_src[pos])) token += code_src[pos];
             else return token;
-            currentPos++;
-            break;
-        case READING_NUMBER:
-            if (std::isdigit(code_src[currentPos]) || code_src[currentPos] == '.')
-                token += code_src[currentPos];
+            pos++;
+        } else if (state == READING_NUMBER) {
+            if (std::isdigit(code_src[pos]) || code_src[pos] == '.')
+                token += code_src[pos];
             else return token;
-            currentPos++;
-            break;
-        default:
-            break;
+            pos++;
         }
     }
     return token;
 }
 
-void parserToken(std::string &token)
-{
+void parser_token(std::string &token) {
     std::pair<std::string, std::string> temp;
     temp.first = token;
 
@@ -91,23 +80,23 @@ void parserToken(std::string &token)
                 }
             }
         }
-        bool hasDot = false;
+        bool flag = false;
         for (int i = 0; i < token.size(); i++) {
             if (token[i] == '.') {
-                if (hasDot) {
+                if (flag) {
                     std::cout << "Malformed number: More than one decimal point in a floating point number.";
                     exit(0);
                 }
-                hasDot = true;
+                flag = true;
             } else if (!std::isdigit(token[i])) {
                 std::cout << "Malformed number: Non-digit character in a number.";
                 exit(0);
             }
         }
-        if (hasDot) temp.second = "DOUBLE";
+        if (flag) temp.second = "DOUBLE";
         else temp.second = "INT";
     }
-    output.push_back(temp);
+    ans.push_back(temp);
 }
 
 int main() {
@@ -120,12 +109,12 @@ int main() {
     init();
     
     while (true) {
-        std::string token = getToken();
+        std::string token = get_token();
         if (token == "") break;
-        parserToken(token);
+        parser_token(token);
     }
 
-    for (const auto& [first, second] : output) {
+    for (const auto& [first, second] : ans) {
         std::cout << first << " " << second << std::endl;
     }
     return 0;
