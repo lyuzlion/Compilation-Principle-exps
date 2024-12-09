@@ -3,17 +3,7 @@
 
 
 
-std::vector<std::vector<int>> global_jibenkuai;    
-std::vector<std::set<std::string>> huoyuebianliang;       
-std::map<std::string, Siyuanshixiang> lishixinxi;  
-int InitdeltaPianYiLiang = 0;     
-std::map<std::string, Fuhaobiaoxiang> huhaobiao;  
-std::map<std::string, std::set<std::string>> jicunqimiaoshufu; 
-int deltaPianYiLiang = 0;     
-std::vector<std::string> jicunqi;  
-std::vector<Siyuanshi> Siyuanshis;  
-std::map<std::string, some_struct> dizhimiaoshufu; 
-std::vector<int> biaoqianbiaozhiwei;
+
 
 int func1(int index)
 {

@@ -21,6 +21,10 @@ struct Siyuanshi {      //四元式
 };
 
 
+std::vector<std::vector<int>> global_jibenkuai;    
+std::vector<std::set<std::string>> huoyuebianliang;       
+std::map<std::string, Siyuanshixiang> lishixinxi;  
+int InitdeltaPianYiLiang = 0;     
 
 struct Fuhaobiaoxiang {    //符号表中的项目
     std::string name="", type="", value="";        //变量值
@@ -32,11 +36,18 @@ struct Fuhaobiaoxiang {    //符号表中的项目
     Fuhaobiaoxiang(bool isTemp):isTemp(isTemp){}
 };
 
+std::map<std::string, Fuhaobiaoxiang> huhaobiao;  
+std::map<std::string, std::set<std::string>> jicunqimiaoshufu; 
+int deltaPianYiLiang = 0;     
 
 struct some_struct {                                      // Aval中的项目
     std::set<std::string> registerSet; // 寄存器集合
     std::set<std::string> memory;
 };
 
+std::vector<std::string> jicunqi;  
+std::vector<Siyuanshi> Siyuanshis;  
+std::map<std::string, some_struct> dizhimiaoshufu; 
+std::vector<int> biaoqianbiaozhiwei;
 
 #endif
