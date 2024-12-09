@@ -115,13 +115,13 @@ std::set<std::string> func3(std::vector<int> &block) // 求解待用信息
 {
     std::set<std::string> res; // 当前块出口处的活跃变量集合
     for (auto &i : block)
-    {                                                     // flag_usage在构造时已经是非待用
+    {                                                     // shiyongbiaozhi在构造时已经是非待用
         std::string x = Siyuanshis[i].left_caozuoshu.val; // 对于左右操作数和左值
         std::string y = Siyuanshis[i].caozuoshu_right.val;
         std::string z = Siyuanshis[i].value.val;
         if (x[0] == 'T')
         {
-            huhaobiao[x].flag_usage = -1;
+            huhaobiao[x].shiyongbiaozhi = -1;
             if (!huhaobiao[x].isTemp)
             {                                 // 如果x不是临时变量
                 huhaobiao[x].active = true; // x是活跃的
@@ -133,7 +133,7 @@ std::set<std::string> func3(std::vector<int> &block) // 求解待用信息
         }
         if (y[0] == 'T')
         {
-            huhaobiao[y].flag_usage = -1;
+            huhaobiao[y].shiyongbiaozhi = -1;
             if (!huhaobiao[y].isTemp)
             {
                 huhaobiao[y].active = true;
@@ -145,7 +145,7 @@ std::set<std::string> func3(std::vector<int> &block) // 求解待用信息
         }
         if (z[0] == 'T')
         {
-            huhaobiao[z].flag_usage = -1;
+            huhaobiao[z].shiyongbiaozhi = -1;
             if (!huhaobiao[z].isTemp)
             {
                 huhaobiao[z].active = true;
@@ -161,24 +161,24 @@ std::set<std::string> func3(std::vector<int> &block) // 求解待用信息
         int index = block[i];
         if (Siyuanshis[index].value.val[0] == 'T')
         {
-            Siyuanshis[index].value.flag_usage = huhaobiao[Siyuanshis[index].value.val].flag_usage; // 符号表中变量z的flag_usage和active赋值给四元式qi的z变量；
+            Siyuanshis[index].value.shiyong = huhaobiao[Siyuanshis[index].value.val].shiyongbiaozhi; // 符号表中变量z的shiyongbiaozhi和active赋值给四元式qi的z变量；
             Siyuanshis[index].value.active = huhaobiao[Siyuanshis[index].value.val].active;
-            huhaobiao[Siyuanshis[index].value.val].active = false; // 符号表中变量z的flag_usage和active分别置为-和N；
-            huhaobiao[Siyuanshis[index].value.val].flag_usage = -1;
+            huhaobiao[Siyuanshis[index].value.val].active = false; // 符号表中变量z的shiyongbiaozhi和active分别置为-和N；
+            huhaobiao[Siyuanshis[index].value.val].shiyongbiaozhi = -1;
         }
         if (Siyuanshis[index].left_caozuoshu.val[0] == 'T')
         {
-            Siyuanshis[index].left_caozuoshu.flag_usage = huhaobiao[Siyuanshis[index].left_caozuoshu.val].flag_usage; // 符号表中变量x的flag_usage和active赋值给四元式qi的x变量
+            Siyuanshis[index].left_caozuoshu.shiyong = huhaobiao[Siyuanshis[index].left_caozuoshu.val].shiyongbiaozhi; // 符号表中变量x的shiyongbiaozhi和active赋值给四元式qi的x变量
             Siyuanshis[index].left_caozuoshu.active = huhaobiao[Siyuanshis[index].left_caozuoshu.val].active;
-            huhaobiao[Siyuanshis[index].left_caozuoshu.val].active = true; // 符号表中变量x的flag_usage和active分别置为qi和Y
-            huhaobiao[Siyuanshis[index].left_caozuoshu.val].flag_usage = index;
+            huhaobiao[Siyuanshis[index].left_caozuoshu.val].active = true; // 符号表中变量x的shiyongbiaozhi和active分别置为qi和Y
+            huhaobiao[Siyuanshis[index].left_caozuoshu.val].shiyongbiaozhi = index;
         }
         if (Siyuanshis[index].caozuoshu_right.val[0] == 'T')
         {
-            Siyuanshis[index].caozuoshu_right.flag_usage = huhaobiao[Siyuanshis[index].caozuoshu_right.val].flag_usage; // 符号表中变量y的flag_usage和active赋值给四元式qi的y变量
+            Siyuanshis[index].caozuoshu_right.shiyong = huhaobiao[Siyuanshis[index].caozuoshu_right.val].shiyongbiaozhi; // 符号表中变量y的shiyongbiaozhi和active赋值给四元式qi的y变量
             Siyuanshis[index].caozuoshu_right.active = huhaobiao[Siyuanshis[index].caozuoshu_right.val].active;
-            huhaobiao[Siyuanshis[index].caozuoshu_right.val].active = true; // 符号表中变量y的flag_usage和active分别置为qi和Y
-            huhaobiao[Siyuanshis[index].caozuoshu_right.val].flag_usage = index;
+            huhaobiao[Siyuanshis[index].caozuoshu_right.val].active = true; // 符号表中变量y的shiyongbiaozhi和active分别置为qi和Y
+            huhaobiao[Siyuanshis[index].caozuoshu_right.val].shiyongbiaozhi = index;
         }
     }
     return res; // 返回当前块出口处的活跃变量集合
@@ -207,10 +207,10 @@ std::string func4(std::string var) // 获取变量的地址
     return "[ebp-" + std::to_string(huhaobiao[var].deltaPianYiLiang) + "]"; // 返回变量的地址
 }
 
-std::string findR(std::vector<std::string> &allR, int index) // 用于Ri = （Rj∈RA）argmax（a∈jicunqimiaoshufu（Rj））min a.flag_usage；
+std::string findR(std::vector<std::string> &allR, int index) // 用于Ri = （Rj∈RA）argmax（a∈jicunqimiaoshufu（Rj））min a.shiyongbiaozhi；
 {
     std::string res;
-    int maxflag_usage = INT32_MIN; // maxflag_usage=-∞
+    int maxshiyongbiaozhi = INT32_MIN; // maxshiyongbiaozhi=-∞
     int blockIndex = func1(index); // blockIndex=FindBlockIndex（q）；
     for (auto &Ri : allR)
     {                          // for each Ri∈RA
@@ -220,9 +220,9 @@ std::string findR(std::vector<std::string> &allR, int index) // 用于Ri = （Rj
             if (jicunqimiaoshufu[Ri].find(Siyuanshis[i].left_caozuoshu.val) != jicunqimiaoshufu[Ri].end())
             { // 同理
                 hasFound = true;
-                if (i > maxflag_usage)
+                if (i > maxshiyongbiaozhi)
                 {
-                    maxflag_usage = i;
+                    maxshiyongbiaozhi = i;
                     res = Ri;
                 }
                 break;
@@ -230,9 +230,9 @@ std::string findR(std::vector<std::string> &allR, int index) // 用于Ri = （Rj
             else if (jicunqimiaoshufu[Ri].find(Siyuanshis[i].caozuoshu_right.val) != jicunqimiaoshufu[Ri].end())
             {
                 hasFound = true;
-                if (i > maxflag_usage)
+                if (i > maxshiyongbiaozhi)
                 {
-                    maxflag_usage = i;
+                    maxshiyongbiaozhi = i;
                     res = Ri;
                 }
                 break;
@@ -303,7 +303,7 @@ std::string getReg(int index) // 局部寄存器分配的伪代码
     }
     if (!hasFound)
     {
-        Ri = findR(RA, index); // Ri = （Rj∈RA）argmax（a∈jicunqimiaoshufu（Rj））min a.flag_usage；
+        Ri = findR(RA, index); // Ri = （Rj∈RA）argmax（a∈jicunqimiaoshufu（Rj））min a.shiyongbiaozhi；
     }
     for (auto &a : jicunqimiaoshufu[Ri])
     { // foreach a∈jicunqimiaoshufu（Ri）do
@@ -464,7 +464,7 @@ void clearSymbolTable()
     {
         if (a.second.isTemp)
         {
-            a.second.flag_usage = -1;
+            a.second.shiyongbiaozhi = -1;
             a.second.active = false;
             a.second.deltaPianYiLiang = -1;
         }
