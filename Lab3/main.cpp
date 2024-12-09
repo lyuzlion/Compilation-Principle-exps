@@ -37,16 +37,16 @@ void func2() // 获取基本块
                 rukou[ii + 1] = true; // 标记qi+1为基本块的入口
             }
             if (biaoqianbiaozhiwei[stoi(Siyuanshis[ii].value.val)] == 0)
-            {                         // if !biaoqianbiaozhiwei[quad.block] then
-                biaoqianbiaozhiwei[stoi(Siyuanshis[ii].value.val)] = 1; // biaoqianbiaozhiwei[quad.block]=true；
+            {                         // if !biaoqianbiaozhiwei[quad.kuai] then
+                biaoqianbiaozhiwei[stoi(Siyuanshis[ii].value.val)] = 1; // biaoqianbiaozhiwei[quad.kuai]=true；
             }
         }
         else if (jump(Siyuanshis[ii]))
         {                                              // else if qi形如(j,-,-,qj)
             rukou[stoi(Siyuanshis[ii].value.val)] = true;                     // 标记qj为基本块的入口
             if (biaoqianbiaozhiwei[stoi(Siyuanshis[ii].value.val)] == 0)
-            {                         // if !biaoqianbiaozhiwei[quad.block] then
-                biaoqianbiaozhiwei[stoi(Siyuanshis[ii].value.val)] = 1; // biaoqianbiaozhiwei[quad.block]=true；
+            {                         // if !biaoqianbiaozhiwei[quad.kuai] then
+                biaoqianbiaozhiwei[stoi(Siyuanshis[ii].value.val)] = 1; // biaoqianbiaozhiwei[quad.kuai]=true；
             }
         }
         else if (Siyuanshis[ii].caozuofu.val == "End") // if qi形如(End,-,-,-)
@@ -100,10 +100,10 @@ void func2() // 获取基本块
     global_jibenkuai.assign(jbks.begin(), jbks.end()); // 将基本块集合转换为基本块数组
 }
 
-std::set<std::string> func3(std::vector<int> &block) // 求解待用信息
+std::set<std::string> func3(std::vector<int> &kuai) // 求解待用信息
 {
     std::set<std::string> var1; // 当前块出口处的活跃变量集合
-    for (auto &i : block)
+    for (auto &i : kuai)
     {                                                     // shiyongbiaozhi在构造时已经是非待用
         std::string x = Siyuanshis[i].left_caozuoshu.val; // 对于左右操作数和左值
         std::string y = Siyuanshis[i].caozuoshu_right.val;
@@ -145,29 +145,29 @@ std::set<std::string> func3(std::vector<int> &block) // 求解待用信息
             }
         }
     }
-    for (int i = block.size() - 1; i >= 0; i--)
+    for (int i = kuai.size() - 1; i >= 0; i--)
     { // for i=m…1
-        int index = block[i];
-        if (Siyuanshis[index].value.val[0] == 'T')
+        int var3 = kuai[i];
+        if (Siyuanshis[var3].value.val[0] == 'T')
         {
-            Siyuanshis[index].value.shiyong = huhaobiao[Siyuanshis[index].value.val].shiyongbiaozhi; // 符号表中变量z的shiyongbiaozhi和Huoyue赋值给四元式qi的z变量；
-            Siyuanshis[index].value.Huoyue = huhaobiao[Siyuanshis[index].value.val].Huoyue;
-            huhaobiao[Siyuanshis[index].value.val].Huoyue = false; // 符号表中变量z的shiyongbiaozhi和Huoyue分别置为-和N；
-            huhaobiao[Siyuanshis[index].value.val].shiyongbiaozhi = -1;
+            Siyuanshis[var3].value.shiyong = huhaobiao[Siyuanshis[var3].value.val].shiyongbiaozhi; // 符号表中变量z的shiyongbiaozhi和Huoyue赋值给四元式qi的z变量；
+            Siyuanshis[var3].value.Huoyue = huhaobiao[Siyuanshis[var3].value.val].Huoyue;
+            huhaobiao[Siyuanshis[var3].value.val].Huoyue = false; // 符号表中变量z的shiyongbiaozhi和Huoyue分别置为-和N；
+            huhaobiao[Siyuanshis[var3].value.val].shiyongbiaozhi = -1;
         }
-        if (Siyuanshis[index].left_caozuoshu.val[0] == 'T')
+        if (Siyuanshis[var3].left_caozuoshu.val[0] == 'T')
         {
-            Siyuanshis[index].left_caozuoshu.shiyong = huhaobiao[Siyuanshis[index].left_caozuoshu.val].shiyongbiaozhi; // 符号表中变量x的shiyongbiaozhi和Huoyue赋值给四元式qi的x变量
-            Siyuanshis[index].left_caozuoshu.Huoyue = huhaobiao[Siyuanshis[index].left_caozuoshu.val].Huoyue;
-            huhaobiao[Siyuanshis[index].left_caozuoshu.val].Huoyue = true; // 符号表中变量x的shiyongbiaozhi和Huoyue分别置为qi和Y
-            huhaobiao[Siyuanshis[index].left_caozuoshu.val].shiyongbiaozhi = index;
+            Siyuanshis[var3].left_caozuoshu.shiyong = huhaobiao[Siyuanshis[var3].left_caozuoshu.val].shiyongbiaozhi; // 符号表中变量x的shiyongbiaozhi和Huoyue赋值给四元式qi的x变量
+            Siyuanshis[var3].left_caozuoshu.Huoyue = huhaobiao[Siyuanshis[var3].left_caozuoshu.val].Huoyue;
+            huhaobiao[Siyuanshis[var3].left_caozuoshu.val].Huoyue = true; // 符号表中变量x的shiyongbiaozhi和Huoyue分别置为qi和Y
+            huhaobiao[Siyuanshis[var3].left_caozuoshu.val].shiyongbiaozhi = var3;
         }
-        if (Siyuanshis[index].caozuoshu_right.val[0] == 'T')
+        if (Siyuanshis[var3].caozuoshu_right.val[0] == 'T')
         {
-            Siyuanshis[index].caozuoshu_right.shiyong = huhaobiao[Siyuanshis[index].caozuoshu_right.val].shiyongbiaozhi; // 符号表中变量y的shiyongbiaozhi和Huoyue赋值给四元式qi的y变量
-            Siyuanshis[index].caozuoshu_right.Huoyue = huhaobiao[Siyuanshis[index].caozuoshu_right.val].Huoyue;
-            huhaobiao[Siyuanshis[index].caozuoshu_right.val].Huoyue = true; // 符号表中变量y的shiyongbiaozhi和Huoyue分别置为qi和Y
-            huhaobiao[Siyuanshis[index].caozuoshu_right.val].shiyongbiaozhi = index;
+            Siyuanshis[var3].caozuoshu_right.shiyong = huhaobiao[Siyuanshis[var3].caozuoshu_right.val].shiyongbiaozhi; // 符号表中变量y的shiyongbiaozhi和Huoyue赋值给四元式qi的y变量
+            Siyuanshis[var3].caozuoshu_right.Huoyue = huhaobiao[Siyuanshis[var3].caozuoshu_right.val].Huoyue;
+            huhaobiao[Siyuanshis[var3].caozuoshu_right.val].Huoyue = true; // 符号表中变量y的shiyongbiaozhi和Huoyue分别置为qi和Y
+            huhaobiao[Siyuanshis[var3].caozuoshu_right.val].shiyongbiaozhi = var3;
         }
     }
     return var1; // 返回当前块出口处的活跃变量集合
@@ -185,26 +185,26 @@ std::string func4(std::string var) // 获取变量的地址
     }
     if (var.back() == 'i')
     {                                                         // 如果变量是整型临时变量
+        huhaobiao[var].deltaPianYiLiang = deltaPianYiLiang + 4; // 更新变量的偏移量
         deltaPianYiLiang += 4;                                // 偏移量加4
-        huhaobiao[var].deltaPianYiLiang = deltaPianYiLiang; // 更新变量的偏移量
     }
     else if (var.back() == 'd')
     {                          // 如果变量是double型临时变量
+        huhaobiao[var].deltaPianYiLiang = deltaPianYiLiang + 8;
         deltaPianYiLiang += 8; // 偏移量加8
-        huhaobiao[var].deltaPianYiLiang = deltaPianYiLiang;
     }
     return "[ebp-" + std::to_string(huhaobiao[var].deltaPianYiLiang) + "]"; // 返回变量的地址
 }
 
-std::string func5(std::vector<std::string> &allR, int index) // 用于Ri = （Rj∈RA）argmax（a∈jicunqimiaoshufu（Rj））min a.shiyongbiaozhi；
+std::string func5(std::vector<std::string> &var2, int var3) // 用于Ri = （Rj∈RA）argmax（a∈jicunqimiaoshufu（Rj））min a.shiyongbiaozhi；
 {
     std::string var1;
     int maxshiyongbiaozhi = INT32_MIN; // maxshiyongbiaozhi=-∞
-    int blockIndex = func1(index); // blockIndex=FindBlockIndex（q）；
-    for (auto &Ri : allR)
+    int kuaiIndex = func1(var3); // kuaiIndex=FindBlockIndex（q）；
+    for (auto &Ri : var2)
     {                          // for each Ri∈RA
         bool hasFound = false; // Ri中的变量是否在后续的四元式中使用
-        for (int i = index + 1; i <= global_jibenkuai[blockIndex].back(); i++)
+        for (int i = var3 + 1; i <= global_jibenkuai[kuaiIndex].back(); i++)
         { // 遍历四元式
             if (jicunqimiaoshufu[Ri].find(Siyuanshis[i].left_caozuoshu.val) != jicunqimiaoshufu[Ri].end())
             { // 同理
@@ -236,9 +236,9 @@ std::string func5(std::vector<std::string> &allR, int index) // 用于Ri = （Rj
     return var1;
 }
 
-std::string func6(int index) // 局部寄存器分配的伪代码
+std::string func6(int var3) // 局部寄存器分配的伪代码
 {
-    Siyuanshi q = Siyuanshis[index];       // 四元式q
+    Siyuanshi q = Siyuanshis[var3];       // 四元式q
     std::string z = q.value.val;           // 左值z
     std::string x = q.left_caozuoshu.val;  // 左操作数x
     std::string y = q.caozuoshu_right.val; // 右操作数y
@@ -292,7 +292,7 @@ std::string func6(int index) // 局部寄存器分配的伪代码
     }
     if (!hasFound)
     {
-        Ri = func5(RA, index); // Ri = （Rj∈RA）argmax（a∈jicunqimiaoshufu（Rj））min a.shiyongbiaozhi；
+        Ri = func5(RA, var3); // Ri = （Rj∈RA）argmax（a∈jicunqimiaoshufu（Rj））min a.shiyongbiaozhi；
     }
     for (auto &a : jicunqimiaoshufu[Ri])
     { // foreach a∈jicunqimiaoshufu（Ri）do
@@ -315,7 +315,7 @@ std::string func6(int index) // 局部寄存器分配的伪代码
     return Ri;
 }
 
-void releaseReg(std::string var, std::set<std::string> &huoyuebianliang)
+void func7(std::string var, std::set<std::string> &huoyuebianliang)
 { // 释放寄存器
     if (huoyuebianliang.find(var) == huoyuebianliang.end())
     { // if var 不属于 huoyuebianliang（Bi）
@@ -327,17 +327,17 @@ void releaseReg(std::string var, std::set<std::string> &huoyuebianliang)
     }
 }
 
-void genForOnlyX(int index, int blockIndex)
+void func8(int var3, int kuaiIndex)
 {
-    Siyuanshi q = Siyuanshis[index];
+    Siyuanshi q = Siyuanshis[var3];
     auto x = q.left_caozuoshu.val;
     auto z = q.value.val;
-    auto R = func6(index);
-    std::string x1;
+    auto R = func6(var3);
+    std::string var6;
     if (type_number(x))
     {
-        x1 = x; // x是数字，x1=x；
-        std::cout << "mov " << R << ", " << x1 << "\n";
+        var6 = x; // x是数字，var6=x；
+        std::cout << "mov " << R << ", " << var6 << "\n";
     }
     else
     { // x是变量
@@ -345,13 +345,13 @@ void genForOnlyX(int index, int blockIndex)
         { // if x∉jicunqimiaoshufu（R）
             if (!dizhimiaoshufu[x].registerSet.empty())
             {                                      // if dizhimiaoshufu（x）≠∅
-                x1 = *dizhimiaoshufu[x].registerSet.begin(); // x1=dizhimiaoshufu（x）中的寄存器；
+                var6 = *dizhimiaoshufu[x].registerSet.begin(); // var6=dizhimiaoshufu（x）中的寄存器；
             }
             else
             {
-                x1 = func4(x); // x1=地址（x）；
+                var6 = func4(x); // var6=地址（x）；
             }
-            std::cout << "mov " << R << ", " << x1 << "\n"; // 生成代码：mov R，x1；
+            std::cout << "mov " << R << ", " << var6 << "\n"; // 生成代码：mov R，var6；
         }
         if (q.caozuofu.val != "=")
         {
@@ -359,7 +359,7 @@ void genForOnlyX(int index, int blockIndex)
         }
         if (!type_number(x))
         {
-            releaseReg(x, huoyuebianliang[blockIndex]); // releaseReg（x，Bi）；
+            func7(x, huoyuebianliang[kuaiIndex]); // func7（x，Bi）；
         }
     }
     jicunqimiaoshufu[R].insert(z);             // jicunqimiaoshufu（R）+={z}；
@@ -368,118 +368,104 @@ void genForOnlyX(int index, int blockIndex)
     dizhimiaoshufu[z].memory.clear();        // dizhimiaoshufu（z）-={z}；
 }
 
-void genForTheta(int index, int blockIndex)
+void func9(int var3, int kuaiIndex)
 { // if qij形如（θ，x，y，z）then
-    Siyuanshi q = Siyuanshis[index];
-    auto x = q.left_caozuoshu.val;
-    auto y = q.caozuoshu_right.val;
-    auto z = q.value.val;
-    auto Rz = func6(index); // Rz=getReg（qij）；
-    std::string x1;
+    Siyuanshi siyuanshi = Siyuanshis[var3];
+    auto x = siyuanshi.left_caozuoshu.val;
+    auto y = siyuanshi.caozuoshu_right.val;
+    auto z = siyuanshi.value.val;
+    auto var4 = func6(var3); // var4=getReg（qij）；
+    std::string var6;
     if (x != "-" && !type_number(x))
     { // x' = 存在Rx∈dizhimiaoshufu（x）？Rx：x；
         if (!dizhimiaoshufu[x].registerSet.empty())
         {
-            x1 = *dizhimiaoshufu[x].registerSet.begin();
+            var6 = *dizhimiaoshufu[x].registerSet.begin();
         }
         else
         {
-            x1 = func4(x);
+            var6 = func4(x);
         }
     }
     else
     {
-        x1 = x;
+        var6 = x;
     }
-    std::string y1;
+    std::string var5;
     if (y != "-" && !type_number(y))
     { // y' = 存在Ry∈dizhimiaoshufu（y）？Ry：y；
         if (!dizhimiaoshufu[y].registerSet.empty())
         {
-            y1 = *dizhimiaoshufu[y].registerSet.begin();
+            var5 = *dizhimiaoshufu[y].registerSet.begin();
         }
         else
         {
-            y1 = func4(y);
+            var5 = func4(y);
         }
     }
     else
     {
-        y1 = y;
+        var5 = y;
     }
-    if (x1 == Rz)
-    {                                                                                     // if x' = Rz then
-        std::cout << operationMapping[q.caozuofu.val] << " " << Rz << ", " << y1 << "\n"; // 生成代码：θ Rz，y'
-        if (operationMapping[q.caozuofu.val] == "cmp")
+    if (var6 == var4)
+    {                                                                                     // if x' = var4 then
+        std::cout << operationMapping[siyuanshi.caozuofu.val] << " " << var4 << ", " << var5 << "\n"; // 生成代码：θ var4，y'
+        if (operationMapping[siyuanshi.caozuofu.val] == "cmp")
         {                                                                                   // if θ = cmp then
-            std::cout << comparisonInstructionMapping[q.caozuofu.val] << " " << Rz << "\n"; // 生成代码：cmp Rz
+            std::cout << comparisonInstructionMapping[siyuanshi.caozuofu.val] << " " << var4 << "\n"; // 生成代码：cmp var4
         }
-        dizhimiaoshufu[x].registerSet.erase(Rz); // dizhimiaoshufu（x）-={Rz}；
+        dizhimiaoshufu[x].registerSet.erase(var4); // dizhimiaoshufu（x）-={var4}；
     }
     else
     {
-        std::cout << "mov " << Rz << ", " << x1 << "\n"; // 生成代码：mov Rz，x'；和θ Rz，y'；
-        std::cout << operationMapping[q.caozuofu.val] << " " << Rz << ", " << y1 << "\n";
-        if (operationMapping[q.caozuofu.val] == "cmp")
+        std::cout << "mov " << var4 << ", " << var6 << "\n"; // 生成代码：mov var4，x'；和θ var4，y'；
+        std::cout << operationMapping[siyuanshi.caozuofu.val] << " " << var4 << ", " << var5 << "\n";
+        if (operationMapping[siyuanshi.caozuofu.val] == "cmp")
         {
-            std::cout << comparisonInstructionMapping[q.caozuofu.val] << " " << Rz << "\n";
+            std::cout << comparisonInstructionMapping[siyuanshi.caozuofu.val] << " " << var4 << "\n";
         }
     }
-    if (y1 == Rz)
-    { // if y' = Rz
+    if (var5 == var4)
+    { // if y' = var4
         if (!type_number(y))
         {
-            dizhimiaoshufu[y].registerSet.erase(Rz); // then dizhimiaoshufu（y）-={Rz}；
+            dizhimiaoshufu[y].registerSet.erase(var4); // then dizhimiaoshufu（y）-={var4}；
         }
     }
-    jicunqimiaoshufu[Rz] = {z}; // jicunqimiaoshufu（Rz） = {z}，dizhimiaoshufu（z）={Rz}；
-    lishixinxi[z] = q.value;
-    dizhimiaoshufu[z].registerSet = {Rz};
+    jicunqimiaoshufu[var4] = {z}; // jicunqimiaoshufu（var4） = {z}，dizhimiaoshufu（z）={var4}；
+    lishixinxi[z] = siyuanshi.value;
+    dizhimiaoshufu[z].registerSet = {var4};
     dizhimiaoshufu[z].memory.clear();
     if (!type_number(x))
     {
-        releaseReg(x, huoyuebianliang[blockIndex]); // releaseReg（x，Bi）
+        func7(x, huoyuebianliang[kuaiIndex]); // func7（x，Bi）
     }
     if (!type_number(y))
     {
-        releaseReg(y, huoyuebianliang[blockIndex]); // releaseReg（y，Bi）；
-    }
-}
-
-void clearSymbolTable()
-{ // 清空符号表，这是后来加的
-    deltaPianYiLiang = InitdeltaPianYiLiang;
-    for (auto &a : huhaobiao)
-    {
-        if (a.second.zhongjian)
-        {
-            a.second.shiyongbiaozhi = -1;
-            a.second.Huoyue = false;
-            a.second.deltaPianYiLiang = -1;
-        }
+        func7(y, huoyuebianliang[kuaiIndex]); // func7（y，Bi）；
     }
 }
 
 void func10()
 {
-    int blockIndex = 0;
-    while (blockIndex < global_jibenkuai.size())
+    int kuaiIndex = 0;
+    while (kuaiIndex < global_jibenkuai.size())
     {
-        auto &block = global_jibenkuai[blockIndex];
-        if (biaoqianbiaozhiwei[global_jibenkuai[blockIndex].front()] == 1)
+        auto &kuai = global_jibenkuai[kuaiIndex];
+        if (biaoqianbiaozhiwei[global_jibenkuai[kuaiIndex].front()] == 1)
         {
-            std::cout << "?" + std::to_string(block.front()) + ":\n";
+            std::cout << "?" + std::to_string(kuai.front()) + ":\n";
         }
-        for (auto j : block)
+        for (auto j : kuai)
         { // 为每个四元式生成代码
 
             if (theta(Siyuanshis[j]))
             {
-                genForTheta(j, blockIndex);
+                func9(j, kuaiIndex);
             }
             else if (type_x(Siyuanshis[j]))
             {
-                genForOnlyX(j, blockIndex);
+                func8(j, kuaiIndex);
             }
             else if (read_or_write(Siyuanshis[j]))
             {
@@ -497,12 +483,12 @@ void func10()
                     std::cout << "(" << func4(Siyuanshis[j].value.val) << ")\n";
                     if (!type_number(Siyuanshis[j].value.val))
                     {
-                        releaseReg(Siyuanshis[j].value.val, huoyuebianliang[blockIndex]);
+                        func7(Siyuanshis[j].value.val, huoyuebianliang[kuaiIndex]);
                     }
                 }
             }
         }
-        for (auto a : huoyuebianliang[blockIndex])
+        for (auto a : huoyuebianliang[kuaiIndex])
         { // foreach a∈huoyuebianliang（Bi）
             if (dizhimiaoshufu[a].memory.find(a) == dizhimiaoshufu[a].memory.end())
             { // 并且a不属于dizhimiaoshufu（a）do
@@ -518,7 +504,7 @@ void func10()
                 }
             }
         }
-        auto bianliang1 = Siyuanshis[block.back()]; // bianliang1
+        auto bianliang1 = Siyuanshis[kuai.back()]; // bianliang1
         if (jump(bianliang1))
         {                                                   // if bianliang1形如（j，-，-，q）then
             std::cout << "jmp ?" << bianliang1.value.val << "\n"; // 生成代码：jmp ?q；
@@ -529,30 +515,30 @@ void func10()
             auto x = bianliang1.left_caozuoshu.val;
             auto y = bianliang1.caozuoshu_right.val;
             auto q = bianliang1.value.val;
-            std::string x1; // x' = 存在Rx∈dizhimiaoshufu（x）？Rx：x；
+            std::string var6; // x' = 存在Rx∈dizhimiaoshufu（x）？Rx：x；
             if (!dizhimiaoshufu[x].registerSet.empty())
             {
-                x1 = *dizhimiaoshufu[x].registerSet.begin();
+                var6 = *dizhimiaoshufu[x].registerSet.begin();
             }
             else
             {
-                x1 = x;
+                var6 = x;
             }
-            std::string y1; // y' = 存在Ry∈dizhimiaoshufu（y）？Ry：y；
+            std::string var5; // y' = 存在Ry∈dizhimiaoshufu（y）？Ry：y；
             if (!dizhimiaoshufu[y].registerSet.empty())
             {
-                y1 = *dizhimiaoshufu[y].registerSet.begin();
+                var5 = *dizhimiaoshufu[y].registerSet.begin();
             }
             else
             {
-                y1 = func4(y);
+                var5 = func4(y);
             }
-            if (x1 == x)
+            if (var6 == x)
             {                                                               // if x' = x then
-                x1 = func6(block.back());                                  // x' = getReg（bianliang1）；
-                std::cout << "mov " << x1 << ", " << func4(x) << "\n"; // 生成代码：mov x'，x；
+                var6 = func6(kuai.back());                                  // x' = getReg（bianliang1）；
+                std::cout << "mov " << var6 << ", " << func4(x) << "\n"; // 生成代码：mov x'，x；
             }
-            std::cout << "cmp " << x1 << ", " << y1 << "\n";                             // 生成代码：cmp x'，y'；
+            std::cout << "cmp " << var6 << ", " << var5 << "\n";                             // 生成代码：cmp x'，y'；
             std::cout << conditionalJumpMapping[bianliang1.caozuofu.val] << " ?" << q << "\n"; // 生成代码：jθ ?q；
             // genLable(stoi(q),biaoqianbiaozhiwei); //genLabel（q，biaoqianbiaozhiwei）；
         }
@@ -560,21 +546,21 @@ void func10()
         { // else if bianliang1形如（jnz，x，-，q）then
             auto x = bianliang1.left_caozuoshu.val;
             auto q = bianliang1.value.val;
-            std::string x1; // x' = 存在Rx∈dizhimiaoshufu（x）？Rx：x；
+            std::string var6; // x' = 存在Rx∈dizhimiaoshufu（x）？Rx：x；
             if (!dizhimiaoshufu[x].registerSet.empty())
             {
-                x1 = *dizhimiaoshufu[x].registerSet.begin();
+                var6 = *dizhimiaoshufu[x].registerSet.begin();
             }
             else
             {
-                x1 = x;
+                var6 = x;
             }
-            if (x1 == x)
+            if (var6 == x)
             {
-                x1 = func6(block.back());
-                std::cout << "mov " << x1 << ", " << func4(x) << "\n";
+                var6 = func6(kuai.back());
+                std::cout << "mov " << var6 << ", " << func4(x) << "\n";
             }
-            std::cout << "cmp " << x1 << ", 0\n";
+            std::cout << "cmp " << var6 << ", 0\n";
             std::cout << "jne" << " ?" << q << "\n";    // 生成代码：jne ?q；
         }
         else if (type_finish(bianliang1))
@@ -584,7 +570,7 @@ void func10()
         jicunqimiaoshufu.clear(); // 所有寄存器描述符置空
         dizhimiaoshufu.clear(); // 所有变量的地址描述符置空
 
-        blockIndex++;
+        kuaiIndex++;
     }
 }
 
