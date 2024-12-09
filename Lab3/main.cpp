@@ -3,18 +3,17 @@
 
 
 
-int InitdeltaPianYiLiang = 0;                             // 符号表中变量的初始偏移量
-int deltaPianYiLiang = 0;                                 // 当前符号表的偏移量
-std::vector<Siyuanshi> Siyuanshis;                        // 四元式序列
-std::map<std::string, Fuhaobiaoxiang> huhaobiao;        // 符号表
-std::vector<std::vector<int>> global_jibenkuai;                // 基本块，blockBlocks[i]表示第i个基本块中的四元式下标形成的数组
-int tempVarCount = 0;                                     // 临时变量的数量
-std::map<std::string, some_struct> dizhimiaoshufu;                  // 地址描述符
-std::map<std::string, std::set<std::string>> jicunqimiaoshufu;        // 寄存器描述符
-std::vector<std::string> jicunqi; // 寄存器集合
-std::vector<std::set<std::string>> huoyuebianliang;             // 每个基本块的活跃变量集合
-std::map<std::string, Siyuanshixiang> lishixinxi;        // 历史信息
-std::vector<int> labelFlag;
+std::vector<std::vector<int>> global_jibenkuai;    
+std::vector<std::set<std::string>> huoyuebianliang;       
+std::map<std::string, Siyuanshixiang> lishixinxi;  
+int InitdeltaPianYiLiang = 0;     
+std::map<std::string, Fuhaobiaoxiang> huhaobiao;  
+std::map<std::string, std::set<std::string>> jicunqimiaoshufu; 
+int deltaPianYiLiang = 0;     
+std::vector<std::string> jicunqi;  
+std::vector<Siyuanshi> Siyuanshis;  
+std::map<std::string, some_struct> dizhimiaoshufu; 
+std::vector<int> biaoqianbiaozhiwei;
 
 int func1(int index)
 {
@@ -32,7 +31,7 @@ int func1(int index)
 }
 
 
-void getBasicBlock() // 获取基本块
+void func2() // 获取基本块
 {
     std::set<std::vector<int>> blocks;          // 基本块集合
     int isEnter[Siyuanshis.size()] = {false};   // 标记每个四元式是否是基本块的入口
@@ -47,18 +46,18 @@ void getBasicBlock() // 获取基本块
             {                          // if i<n
                 isEnter[i + 1] = true; // 标记qi+1为基本块的入口
             }
-            if (labelFlag[index] == 0)
-            {                         // if !labelFlag[quad.block] then
-                labelFlag[index] = 1; // labelFlag[quad.block]=true；
+            if (biaoqianbiaozhiwei[index] == 0)
+            {                         // if !biaoqianbiaozhiwei[quad.block] then
+                biaoqianbiaozhiwei[index] = 1; // biaoqianbiaozhiwei[quad.block]=true；
             }
         }
         else if (jump(Siyuanshis[i]))
         {                                              // else if qi形如(j,-,-,qj)
             int index = stoi(Siyuanshis[i].value.val); // 取qj
             isEnter[index] = true;                     // 标记qj为基本块的入口
-            if (labelFlag[index] == 0)
-            {                         // if !labelFlag[quad.block] then
-                labelFlag[index] = 1; // labelFlag[quad.block]=true；
+            if (biaoqianbiaozhiwei[index] == 0)
+            {                         // if !biaoqianbiaozhiwei[quad.block] then
+                biaoqianbiaozhiwei[index] = 1; // biaoqianbiaozhiwei[quad.block]=true；
             }
         }
         else if (Siyuanshis[i].caozuofu.val == "End") // if qi形如(End,-,-,-)
@@ -122,7 +121,7 @@ void getBasicBlock() // 获取基本块
     global_jibenkuai.assign(blocks.begin(), blocks.end()); // 将基本块集合转换为基本块数组
 }
 
-std::set<std::string> getflag_usageInfo(std::vector<int> &block) // 求解待用信息
+std::set<std::string> func3(std::vector<int> &block) // 求解待用信息
 {
     std::set<std::string> res; // 当前块出口处的活跃变量集合
     for (auto &i : block)
@@ -195,7 +194,7 @@ std::set<std::string> getflag_usageInfo(std::vector<int> &block) // 求解待用
     return res; // 返回当前块出口处的活跃变量集合
 }
 
-std::string getAddress(std::string var) // 获取变量的地址
+std::string func4(std::string var) // 获取变量的地址
 {
     if (var[0] == '[')
     {
@@ -320,7 +319,7 @@ std::string getReg(int index) // 局部寄存器分配的伪代码
     { // foreach a∈jicunqimiaoshufu（Ri）do
         if (dizhimiaoshufu[a].memory.find(a) == dizhimiaoshufu[a].memory.end() && a != z)
         {                                                               // if a不属于dizhimiaoshufu（a）并且a≠z
-            std::cout << "mov " << getAddress(a) << ", " << Ri << "\n"; // 生成代码：mov a，Ri；
+            std::cout << "mov " << func4(a) << ", " << Ri << "\n"; // 生成代码：mov a，Ri；
         }
         if (a == x || (a == y && jicunqimiaoshufu[Ri].find(x) != jicunqimiaoshufu[Ri].end()))
         {                         // if a = x或者（a=y并且x∈jicunqimiaoshufu（Ri））
@@ -371,7 +370,7 @@ void genForOnlyX(int index, int blockIndex)
             }
             else
             {
-                x1 = getAddress(x); // x1=地址（x）；
+                x1 = func4(x); // x1=地址（x）；
             }
             std::cout << "mov " << R << ", " << x1 << "\n"; // 生成代码：mov R，x1；
         }
@@ -406,7 +405,7 @@ void genForTheta(int index, int blockIndex)
         }
         else
         {
-            x1 = getAddress(x);
+            x1 = func4(x);
         }
     }
     else
@@ -422,7 +421,7 @@ void genForTheta(int index, int blockIndex)
         }
         else
         {
-            y1 = getAddress(y);
+            y1 = func4(y);
         }
     }
     else
@@ -488,7 +487,7 @@ void genCode()
     while (blockIndex < global_jibenkuai.size())
     {
         auto &block = global_jibenkuai[blockIndex];
-        if (labelFlag[global_jibenkuai[blockIndex].front()] == 1)
+        if (biaoqianbiaozhiwei[global_jibenkuai[blockIndex].front()] == 1)
         {
             std::cout << "?" + std::to_string(block.front()) + ":\n";
         }
@@ -516,7 +515,7 @@ void genCode()
                         std::cout << "jmp ?write";
                     }
 
-                    std::cout << "(" << getAddress(Siyuanshis[j].value.val) << ")\n";
+                    std::cout << "(" << func4(Siyuanshis[j].value.val) << ")\n";
                     if (!type_number(Siyuanshis[j].value.val))
                     {
                         releaseReg(Siyuanshis[j].value.val, huoyuebianliang[blockIndex]);
@@ -534,23 +533,23 @@ void genCode()
                     { // Ra=dizhimiaoshufu（a）中的寄存器；
                         if (lishixinxi[a].active)
                         {
-                            std::cout << "mov " << getAddress(a) << ", " << reg << "\n"; // 生成代码：mov a，Ra；
+                            std::cout << "mov " << func4(a) << ", " << reg << "\n"; // 生成代码：mov a，Ra；
                         }
                     }
                 }
             }
         }
-        auto qini = Siyuanshis[block.back()]; // qini
-        if (jump(qini))
-        {                                                   // if qini形如（j，-，-，q）then
-            std::cout << "jmp ?" << qini.value.val << "\n"; // 生成代码：jmp ?q；
-            // genLable(stoi(qini.left.val),labelFlag); //genLabel（q，labelFlag）；
+        auto bianliang1 = Siyuanshis[block.back()]; // bianliang1
+        if (jump(bianliang1))
+        {                                                   // if bianliang1形如（j，-，-，q）then
+            std::cout << "jmp ?" << bianliang1.value.val << "\n"; // 生成代码：jmp ?q；
+            // genLable(stoi(bianliang1.left.val),biaoqianbiaozhiwei); //genLabel（q，biaoqianbiaozhiwei）；
         }
-        else if (jump_theta(qini))
-        { // else if qini形如（jθ，x，y，q）then
-            auto x = qini.left_caozuoshu.val;
-            auto y = qini.caozuoshu_right.val;
-            auto q = qini.value.val;
+        else if (jump_theta(bianliang1))
+        { // else if bianliang1形如（jθ，x，y，q）then
+            auto x = bianliang1.left_caozuoshu.val;
+            auto y = bianliang1.caozuoshu_right.val;
+            auto q = bianliang1.value.val;
             std::string x1; // x' = 存在Rx∈dizhimiaoshufu（x）？Rx：x；
             if (!dizhimiaoshufu[x].registerSet.empty())
             {
@@ -567,21 +566,21 @@ void genCode()
             }
             else
             {
-                y1 = getAddress(y);
+                y1 = func4(y);
             }
             if (x1 == x)
             {                                                               // if x' = x then
-                x1 = getReg(block.back());                                  // x' = getReg（qini）；
-                std::cout << "mov " << x1 << ", " << getAddress(x) << "\n"; // 生成代码：mov x'，x；
+                x1 = getReg(block.back());                                  // x' = getReg（bianliang1）；
+                std::cout << "mov " << x1 << ", " << func4(x) << "\n"; // 生成代码：mov x'，x；
             }
             std::cout << "cmp " << x1 << ", " << y1 << "\n";                             // 生成代码：cmp x'，y'；
-            std::cout << conditionalJumpMapping[qini.caozuofu.val] << " ?" << q << "\n"; // 生成代码：jθ ?q；
-            // genLable(stoi(q),labelFlag); //genLabel（q，labelFlag）；
+            std::cout << conditionalJumpMapping[bianliang1.caozuofu.val] << " ?" << q << "\n"; // 生成代码：jθ ?q；
+            // genLable(stoi(q),biaoqianbiaozhiwei); //genLabel（q，biaoqianbiaozhiwei）；
         }
-        else if (jump_not_zero(qini))
-        { // else if qini形如（jnz，x，-，q）then
-            auto x = qini.left_caozuoshu.val;
-            auto q = qini.value.val;
+        else if (jump_not_zero(bianliang1))
+        { // else if bianliang1形如（jnz，x，-，q）then
+            auto x = bianliang1.left_caozuoshu.val;
+            auto q = bianliang1.value.val;
             std::string x1; // x' = 存在Rx∈dizhimiaoshufu（x）？Rx：x；
             if (!dizhimiaoshufu[x].registerSet.empty())
             {
@@ -594,13 +593,13 @@ void genCode()
             if (x1 == x)
             {
                 x1 = getReg(block.back());
-                std::cout << "mov " << x1 << ", " << getAddress(x) << "\n";
+                std::cout << "mov " << x1 << ", " << func4(x) << "\n";
             }
-            std::cout << "cmp " << x1 << ", 0" << "\n"; // 生成代码：cmp x'，0；
+            std::cout << "cmp " << x1 << ", 0\n";
             std::cout << "jne" << " ?" << q << "\n";    // 生成代码：jne ?q；
         }
-        else if (type_finish(qini))
-        { // else if qini形如（End，-，-，-）then
+        else if (type_finish(bianliang1))
+        { // else if bianliang1形如（End，-，-，-）then
             std::cout << "halt" << "\n";
         }
         jicunqimiaoshufu.clear(); // 所有寄存器描述符置空
@@ -647,7 +646,6 @@ int main()
     }
 
     std::getline(std::cin, line);
-    tempVarCount = stoi(line);
 
     std::getline(std::cin, line);
     sz2 = stoi(line);
@@ -677,16 +675,16 @@ int main()
 
     deltaPianYiLiang = InitdeltaPianYiLiang; // 初始化当前符号表的偏移量
 
-    labelFlag.resize(Siyuanshis.size(), 0);
+    biaoqianbiaozhiwei.resize(Siyuanshis.size(), 0);
 
-    getBasicBlock();
+    func2();
 
     huoyuebianliang.resize(global_jibenkuai.size());
 
     i = 0;
     while (i < global_jibenkuai.size())
     {
-        huoyuebianliang[i] = getflag_usageInfo(global_jibenkuai[i]);
+        huoyuebianliang[i] = func3(global_jibenkuai[i]);
         i++;
     }
 
