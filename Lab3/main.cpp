@@ -365,71 +365,71 @@ void func8(int index, int blkid)
 
 void func9(int index, int blkid)
 { // if qij形如（θ，x，y，z）then
-    Siyuanshi q = Siyuanshis[index];
-    auto x = q.left_caozuoshu.val;
-    auto y = q.caozuoshu_right.val;
-    auto z = q.value.val;
-    auto Rz = func6(index); // Rz=getReg（qij）；
-    std::string x1;
+    Siyuanshi p = Siyuanshis[index];
+    auto x = p.left_caozuoshu.val;
+    auto y = p.caozuoshu_right.val;
+    auto z = p.value.val;
+    auto jicunqi = func6(index);
+    std::string var1;
     if (x == "-" || type_number(x))
     {
-        x1 = x;
+        var1 = x;
     }
     else
     {
         if (dizhimiaoshufu[x].registerSet.empty())
         {
-            x1 = func4(x);
+            var1 = func4(x);
         }
         else
         {
-            x1 = *dizhimiaoshufu[x].registerSet.begin();
+            var1 = *dizhimiaoshufu[x].registerSet.begin();
         }
     }
-    std::string y1;
+    std::string var2;
     if (y == "-" || type_number(y))
     {  
-        y1 = y;
+        var2 = y;
     }
     else
     {
         if (dizhimiaoshufu[y].registerSet.empty())
         {
-            y1 = func4(y);
+            var2 = func4(y);
         }
         else
         {
-            y1 = *dizhimiaoshufu[y].registerSet.begin();
+            var2 = *dizhimiaoshufu[y].registerSet.begin();
         }
     }
-    if (Rz != x1)
+    if (jicunqi != var1)
     {                                                                        
-        std::cout << "mov " << Rz << ", " << x1 << "\n"; 
-        std::cout << operationMapping[q.caozuofu.val] << " " << Rz << ", " << y1 << "\n";
-        if (operationMapping[q.caozuofu.val] == "cmp")
+        std::cout << "mov " << jicunqi << ", " << var1 << "\n"; 
+        std::cout << operationMapping[p.caozuofu.val] << " " << jicunqi << ", " << var2 << "\n";
+        if (operationMapping[p.caozuofu.val] == "cmp")
         {
-            std::cout << comparisonInstructionMapping[q.caozuofu.val] << " " << Rz << "\n";
+            std::cout << comparisonInstructionMapping[p.caozuofu.val] << " " << jicunqi << "\n";
         }
     }
     else
     {
-        std::cout << operationMapping[q.caozuofu.val] << " " << Rz << ", " << y1 << "\n";  
-        if (operationMapping[q.caozuofu.val] == "cmp")
+        std::cout << operationMapping[p.caozuofu.val] << " " << jicunqi << ", " << var2 << "\n";  
+        if (operationMapping[p.caozuofu.val] == "cmp")
         {        
-            std::cout << comparisonInstructionMapping[q.caozuofu.val] << " " << Rz << "\n"; 
+            std::cout << comparisonInstructionMapping[p.caozuofu.val] << " " << jicunqi << "\n"; 
         }
-        dizhimiaoshufu[x].registerSet.erase(Rz);  
+        dizhimiaoshufu[x].registerSet.erase(jicunqi);  
     }
-    if (y1 == Rz)
+    if (var2 == jicunqi)
     { // if y' = Rz
         if (!type_number(y))
         {
-            dizhimiaoshufu[y].registerSet.erase(Rz);  
+            dizhimiaoshufu[y].registerSet.erase(jicunqi);  
         }
     }
-    jicunqimiaoshufu[Rz] = {z}; 
-    lishixinxi[z] = q.value;
-    dizhimiaoshufu[z].registerSet = {Rz};
+    jicunqimiaoshufu[jicunqi] = {z}; 
+    lishixinxi[z] = p.value;
+    dizhimiaoshufu[z].registerSet = {jicunqi};
     dizhimiaoshufu[z].memory.clear();
     if (type_number(x) == false)
     {
@@ -438,6 +438,131 @@ void func9(int index, int blkid)
     if (type_number(y) == false)
     {
         func7(y, huoyuebianliang[blkid]); 
+    }
+}
+
+void func10() {
+    int blkid = 0;
+    while (blkid < global_jibenkuai.size())
+    {
+        auto &block = global_jibenkuai[blkid];
+        if (biaoqianbiaozhiwei[global_jibenkuai[blkid].front()] == 1)
+        {
+            std::cout << "?" + std::to_string(block.front()) + ":\n";
+        }
+        for (auto j : block)
+        { // 为每个四元式生成代码
+
+            if (theta(Siyuanshis[j]))
+            {
+                func9(j, blkid);
+            }
+            else if (type_x(Siyuanshis[j]))
+            {
+                func8(j, blkid);
+            }
+            else if (read_or_write(Siyuanshis[j]))
+            {
+
+                {
+                    if (Siyuanshis[j].caozuofu.val != "W")
+                    {
+                        std::cout << "jmp ?read";
+                    }
+                    else
+                    {
+                        std::cout << "jmp ?write";
+                    }
+
+                    std::cout << "(" << func4(Siyuanshis[j].value.val) << ")\n";
+                    if (!type_number(Siyuanshis[j].value.val))
+                    {
+                        func7(Siyuanshis[j].value.val, huoyuebianliang[blkid]);
+                    }
+                }
+            }
+        }
+        for (auto a : huoyuebianliang[blkid])
+        { // foreach a∈huoyuebianliang（Bi）
+            if (dizhimiaoshufu[a].memory.find(a) == dizhimiaoshufu[a].memory.end())
+            { // 并且a不属于dizhimiaoshufu（a）do
+                if (!dizhimiaoshufu[a].registerSet.empty())
+                {
+                    for (auto reg : dizhimiaoshufu[a].registerSet)
+                    { // Ra=dizhimiaoshufu（a）中的寄存器；
+                        if (lishixinxi[a].huoyue)
+                        {
+                            std::cout << "mov " << func4(a) << ", " << reg << "\n"; 
+                        }
+                    }
+                }
+            }
+        }
+        auto bianliang1 = Siyuanshis[block.back()]; 
+        if (jump(bianliang1))
+        {         
+            std::cout << "jmp ?" << bianliang1.value.val << "\n";  
+        }
+        else if (jump_theta(bianliang1))
+        { 
+            auto x = bianliang1.left_caozuoshu.val;
+            auto var = bianliang1.value.val;
+            auto y = bianliang1.caozuoshu_right.val;
+            std::string var1;  
+            if (!dizhimiaoshufu[x].registerSet.empty())
+            {
+                var1 = *dizhimiaoshufu[x].registerSet.begin();
+            }
+            else
+            {
+                var1 = x;
+            }
+            std::string y1;  
+            if (!dizhimiaoshufu[y].registerSet.empty())
+            {
+                y1 = *dizhimiaoshufu[y].registerSet.begin();
+            }
+            else
+            {
+                y1 = func4(y);
+            }
+            if (var1 == x)
+            {                                                          
+                var1 = func6(block.back());                          
+                std::cout << "mov " << var1 << ", " << func4(x) << "\n";  
+            }
+            std::cout << "cmp " << var1 << ", " << y1 << "\n";                            
+            std::cout << conditionalJumpMapping[bianliang1.caozuofu.val] << " ?" << var << "\n";  
+        }
+        else if (jump_not_zero(bianliang1))
+        {  
+            auto x = bianliang1.left_caozuoshu.val;
+            auto q = bianliang1.value.val;
+            std::string var1;  
+            if (!dizhimiaoshufu[x].registerSet.empty())
+            {
+                var1 = *dizhimiaoshufu[x].registerSet.begin();
+            }
+            else
+            {
+                var1 = x;
+            }
+            if (var1 == x)
+            {
+                var1 = func6(block.back());
+                std::cout << "mov " << var1 << ", " << func4(x) << "\n";
+            }
+            std::cout << "cmp " << var1 << ", 0\n";
+            std::cout << "jne" << " ?" << q << "\n";    // 生成代码：jne ?q；
+        }
+        else if (type_finish(bianliang1))
+        { // else if bianliang1形如（End，-，-，-）then
+            std::cout << "halt" << "\n";
+        }
+        jicunqimiaoshufu.clear(); // 所有寄存器描述符置空
+        dizhimiaoshufu.clear(); // 所有变量的地址描述符置空
+
+        blkid++;
     }
 }
 
@@ -524,129 +649,6 @@ int main()
         i++;
     }
 
-    {
-        int blkid = 0;
-        while (blkid < global_jibenkuai.size())
-        {
-            auto &block = global_jibenkuai[blkid];
-            if (biaoqianbiaozhiwei[global_jibenkuai[blkid].front()] == 1)
-            {
-                std::cout << "?" + std::to_string(block.front()) + ":\n";
-            }
-            for (auto j : block)
-            { // 为每个四元式生成代码
-
-                if (theta(Siyuanshis[j]))
-                {
-                    func9(j, blkid);
-                }
-                else if (type_x(Siyuanshis[j]))
-                {
-                    func8(j, blkid);
-                }
-                else if (read_or_write(Siyuanshis[j]))
-                {
-
-                    {
-                        if (Siyuanshis[j].caozuofu.val != "W")
-                        {
-                            std::cout << "jmp ?read";
-                        }
-                        else
-                        {
-                            std::cout << "jmp ?write";
-                        }
-
-                        std::cout << "(" << func4(Siyuanshis[j].value.val) << ")\n";
-                        if (!type_number(Siyuanshis[j].value.val))
-                        {
-                            func7(Siyuanshis[j].value.val, huoyuebianliang[blkid]);
-                        }
-                    }
-                }
-            }
-            for (auto a : huoyuebianliang[blkid])
-            { // foreach a∈huoyuebianliang（Bi）
-                if (dizhimiaoshufu[a].memory.find(a) == dizhimiaoshufu[a].memory.end())
-                { // 并且a不属于dizhimiaoshufu（a）do
-                    if (!dizhimiaoshufu[a].registerSet.empty())
-                    {
-                        for (auto reg : dizhimiaoshufu[a].registerSet)
-                        { // Ra=dizhimiaoshufu（a）中的寄存器；
-                            if (lishixinxi[a].huoyue)
-                            {
-                                std::cout << "mov " << func4(a) << ", " << reg << "\n"; 
-                            }
-                        }
-                    }
-                }
-            }
-            auto bianliang1 = Siyuanshis[block.back()]; 
-            if (jump(bianliang1))
-            {         
-                std::cout << "jmp ?" << bianliang1.value.val << "\n";  
-            }
-            else if (jump_theta(bianliang1))
-            { 
-                auto x = bianliang1.left_caozuoshu.val;
-                auto var = bianliang1.value.val;
-                auto y = bianliang1.caozuoshu_right.val;
-                std::string var1;  
-                if (!dizhimiaoshufu[x].registerSet.empty())
-                {
-                    var1 = *dizhimiaoshufu[x].registerSet.begin();
-                }
-                else
-                {
-                    var1 = x;
-                }
-                std::string y1;  
-                if (!dizhimiaoshufu[y].registerSet.empty())
-                {
-                    y1 = *dizhimiaoshufu[y].registerSet.begin();
-                }
-                else
-                {
-                    y1 = func4(y);
-                }
-                if (var1 == x)
-                {                                                          
-                    var1 = func6(block.back());                          
-                    std::cout << "mov " << var1 << ", " << func4(x) << "\n";  
-                }
-                std::cout << "cmp " << var1 << ", " << y1 << "\n";                            
-                std::cout << conditionalJumpMapping[bianliang1.caozuofu.val] << " ?" << var << "\n";  
-            }
-            else if (jump_not_zero(bianliang1))
-            {  
-                auto x = bianliang1.left_caozuoshu.val;
-                auto q = bianliang1.value.val;
-                std::string var1;  
-                if (!dizhimiaoshufu[x].registerSet.empty())
-                {
-                    var1 = *dizhimiaoshufu[x].registerSet.begin();
-                }
-                else
-                {
-                    var1 = x;
-                }
-                if (var1 == x)
-                {
-                    var1 = func6(block.back());
-                    std::cout << "mov " << var1 << ", " << func4(x) << "\n";
-                }
-                std::cout << "cmp " << var1 << ", 0\n";
-                std::cout << "jne" << " ?" << q << "\n";    // 生成代码：jne ?q；
-            }
-            else if (type_finish(bianliang1))
-            { // else if bianliang1形如（End，-，-，-）then
-                std::cout << "halt" << "\n";
-            }
-            jicunqimiaoshufu.clear(); // 所有寄存器描述符置空
-            dizhimiaoshufu.clear(); // 所有变量的地址描述符置空
-
-            blkid++;
-        }
-    }
+    func10();
     return 0;
 }
