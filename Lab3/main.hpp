@@ -45,7 +45,7 @@ struct some_struct {                                      // Aval中的项目
     std::set<std::string> memory;
 };
 
-std::vector<std::string> jicunqi;  
+std::vector<std::string> Jicunqi;  
 std::vector<Siyuanshi> Siyuanshis;  
 std::map<std::string, some_struct> dizhimiaoshufu; 
 std::vector<int> biaoqianbiaozhiwei;
