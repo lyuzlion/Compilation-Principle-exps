@@ -5,12 +5,12 @@
 
 
 
-int func1(int index)
+int func1(int var1)
 {
     int i = 0;
     while (i < global_jibenkuai.size())
     {
-        if (find(global_jibenkuai[i].begin(), global_jibenkuai[i].end(), index) != global_jibenkuai[i].end())
+        if (find(global_jibenkuai[i].begin(), global_jibenkuai[i].end(), var1) != global_jibenkuai[i].end())
         {
             return i;
             break;
@@ -23,67 +23,62 @@ int func1(int index)
 
 void func2() // 获取基本块
 {
-    std::set<std::vector<int>> blocks;          // 基本块集合
-    int isEnter[Siyuanshis.size()] = {false};   // 标记每个四元式是否是基本块的入口
-    isEnter[0] = true;                          // 标记qi为入口语句
-    for (int i = 0; i < Siyuanshis.size(); i++) // 逆序遍历四元式
+    int rukou[Siyuanshis.size()] = {false};   // 标记每个四元式是否是基本块的入口
+    rukou[0] = true;                          // 标记qi为入口语句
+    int ii = 0;
+    std::set<std::vector<int>> jbks;          // 基本块集合
+    while (ii < Siyuanshis.size()) // 逆序遍历四元式
     {
-        if (jump_theta(Siyuanshis[i]) || jump_not_zero(Siyuanshis[i])) // if qi 形如 (jTheta,-,-,qj)或(jnz,-,-,qj)
+        if (jump_theta(Siyuanshis[ii]) || jump_not_zero(Siyuanshis[ii])) // if qi 形如 (jTheta,-,-,qj)或(jnz,-,-,qj)
         {
-            int index = stoi(Siyuanshis[i].value.val); // 取qj
-            isEnter[index] = true;                     // 标记qj为基本块的入口
-            if (i < Siyuanshis.size() - 1)
+            rukou[stoi(Siyuanshis[ii].value.val)] = true;                     // 标记qj为基本块的入口
+            if (ii < Siyuanshis.size() - 1)
             {                          // if i<n
-                isEnter[i + 1] = true; // 标记qi+1为基本块的入口
+                rukou[ii + 1] = true; // 标记qi+1为基本块的入口
             }
-            if (biaoqianbiaozhiwei[index] == 0)
+            if (biaoqianbiaozhiwei[stoi(Siyuanshis[ii].value.val)] == 0)
             {                         // if !biaoqianbiaozhiwei[quad.block] then
-                biaoqianbiaozhiwei[index] = 1; // biaoqianbiaozhiwei[quad.block]=true；
+                biaoqianbiaozhiwei[stoi(Siyuanshis[ii].value.val)] = 1; // biaoqianbiaozhiwei[quad.block]=true；
             }
         }
-        else if (jump(Siyuanshis[i]))
+        else if (jump(Siyuanshis[ii]))
         {                                              // else if qi形如(j,-,-,qj)
-            int index = stoi(Siyuanshis[i].value.val); // 取qj
-            isEnter[index] = true;                     // 标记qj为基本块的入口
-            if (biaoqianbiaozhiwei[index] == 0)
+            rukou[stoi(Siyuanshis[ii].value.val)] = true;                     // 标记qj为基本块的入口
+            if (biaoqianbiaozhiwei[stoi(Siyuanshis[ii].value.val)] == 0)
             {                         // if !biaoqianbiaozhiwei[quad.block] then
-                biaoqianbiaozhiwei[index] = 1; // biaoqianbiaozhiwei[quad.block]=true；
+                biaoqianbiaozhiwei[stoi(Siyuanshis[ii].value.val)] = 1; // biaoqianbiaozhiwei[quad.block]=true；
             }
         }
-        else if (Siyuanshis[i].caozuofu.val == "End") // if qi形如(End,-,-,-)
+        else if (Siyuanshis[ii].caozuofu.val == "End") // if qi形如(End,-,-,-)
         {
-            isEnter[Siyuanshis.size() - 1] = true; // 标记qn为基本块的入口
+            rukou[Siyuanshis.size() - 1] = true; // 标记qn为基本块的入口
         }
-        else if (read_or_write(Siyuanshis[i]))
+        else if (read_or_write(Siyuanshis[ii]))
         {
-            isEnter[i] = true;
+            rukou[ii] = true;
         }
+        ii++;
     }
     int i = 0;
     while (i < Siyuanshis.size()) // 顺序遍历四元式
     {
-        if (isEnter[i])
+        if (rukou[i])
         { // if qi是基本块的入口
             if (i == Siyuanshis.size() - 1)
             { // if i=n
-                std::vector<int> temp;
-                temp.push_back(i);
-                blocks.insert(temp); // 将qi加入基本块
-            }
-            if (i + 1 == Siyuanshis.size())
-            {
+                jbks.insert(vector<int>(1,i)); // 将qi加入基本块
                 break;
             }
             for (int j = i + 1; j < Siyuanshis.size(); j++) // 遍历qi之后的四元式
             {
-                if (isEnter[j])
+                if (rukou[j])
                 {                          // if qj是基本块的入口
                     std::vector<int> temp; // qi,qi+1,...,qj-1加入基本块
                     for (int k = i; k < j; k++)
                     {
                         temp.push_back(k);
                     }
-                    blocks.insert(temp);
+                    jbks.insert(temp);
                     i = j; // i=j
                     break;
                 }
@@ -96,7 +91,7 @@ void func2() // 获取基本块
                         {
                             temp.push_back(k);
                         }
-                        blocks.insert(temp);
+                        jbks.insert(temp);
                         i = j + 1; // i=j+1
                         break;
                     }
@@ -108,7 +103,7 @@ void func2() // 获取基本块
             i++; // i++
         }
     }
-    global_jibenkuai.assign(blocks.begin(), blocks.end()); // 将基本块集合转换为基本块数组
+    global_jibenkuai.assign(jbks.begin(), jbks.end()); // 将基本块集合转换为基本块数组
 }
 
 std::set<std::string> func3(std::vector<int> &block) // 求解待用信息
@@ -207,7 +202,7 @@ std::string func4(std::string var) // 获取变量的地址
     return "[ebp-" + std::to_string(huhaobiao[var].deltaPianYiLiang) + "]"; // 返回变量的地址
 }
 
-std::string findR(std::vector<std::string> &allR, int index) // 用于Ri = （Rj∈RA）argmax（a∈jicunqimiaoshufu（Rj））min a.shiyongbiaozhi；
+std::string func5(std::vector<std::string> &allR, int index) // 用于Ri = （Rj∈RA）argmax（a∈jicunqimiaoshufu（Rj））min a.shiyongbiaozhi；
 {
     std::string res;
     int maxshiyongbiaozhi = INT32_MIN; // maxshiyongbiaozhi=-∞
@@ -247,7 +242,7 @@ std::string findR(std::vector<std::string> &allR, int index) // 用于Ri = （Rj
     return res;
 }
 
-std::string getReg(int index) // 局部寄存器分配的伪代码
+std::string func6(int index) // 局部寄存器分配的伪代码
 {
     Siyuanshi q = Siyuanshis[index];       // 四元式q
     std::string z = q.value.val;           // 左值z
@@ -303,7 +298,7 @@ std::string getReg(int index) // 局部寄存器分配的伪代码
     }
     if (!hasFound)
     {
-        Ri = findR(RA, index); // Ri = （Rj∈RA）argmax（a∈jicunqimiaoshufu（Rj））min a.shiyongbiaozhi；
+        Ri = func5(RA, index); // Ri = （Rj∈RA）argmax（a∈jicunqimiaoshufu（Rj））min a.shiyongbiaozhi；
     }
     for (auto &a : jicunqimiaoshufu[Ri])
     { // foreach a∈jicunqimiaoshufu（Ri）do
@@ -343,7 +338,7 @@ void genForOnlyX(int index, int blockIndex)
     Siyuanshi q = Siyuanshis[index];
     auto x = q.left_caozuoshu.val;
     auto z = q.value.val;
-    auto R = getReg(index);
+    auto R = func6(index);
     std::string x1;
     if (type_number(x))
     {
@@ -385,7 +380,7 @@ void genForTheta(int index, int blockIndex)
     auto x = q.left_caozuoshu.val;
     auto y = q.caozuoshu_right.val;
     auto z = q.value.val;
-    auto Rz = getReg(index); // Rz=getReg（qij）；
+    auto Rz = func6(index); // Rz=getReg（qij）；
     std::string x1;
     if (x != "-" && !type_number(x))
     { // x' = 存在Rx∈dizhimiaoshufu（x）？Rx：x；
@@ -560,7 +555,7 @@ void genCode()
             }
             if (x1 == x)
             {                                                               // if x' = x then
-                x1 = getReg(block.back());                                  // x' = getReg（bianliang1）；
+                x1 = func6(block.back());                                  // x' = getReg（bianliang1）；
                 std::cout << "mov " << x1 << ", " << func4(x) << "\n"; // 生成代码：mov x'，x；
             }
             std::cout << "cmp " << x1 << ", " << y1 << "\n";                             // 生成代码：cmp x'，y'；
@@ -582,7 +577,7 @@ void genCode()
             }
             if (x1 == x)
             {
-                x1 = getReg(block.back());
+                x1 = func6(block.back());
                 std::cout << "mov " << x1 << ", " << func4(x) << "\n";
             }
             std::cout << "cmp " << x1 << ", 0\n";
