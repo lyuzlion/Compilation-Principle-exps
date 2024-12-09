@@ -105,9 +105,9 @@ std::set<std::string> func3(std::vector<int> &kuai) // 求解待用信息
     std::set<std::string> var1; // 当前块出口处的活跃变量集合
     for (auto &i : kuai)
     {                                                     // shiyongbiaozhi在构造时已经是非待用
-        std::string x = Siyuanshis[i].left_caozuoshu.val; // 对于左右操作数和左值
         std::string y = Siyuanshis[i].caozuoshu_right.val;
         std::string z = Siyuanshis[i].value.val;
+        std::string x = Siyuanshis[i].left_caozuoshu.val; // 对于左右操作数和左值
         if (x[0] == 'T')
         {
             huhaobiao[x].shiyongbiaozhi = -1;
@@ -196,40 +196,40 @@ std::string func4(std::string var) // 获取变量的地址
     return "[ebp-" + std::to_string(huhaobiao[var].deltaPianYiLiang) + "]"; // 返回变量的地址
 }
 
-std::string func5(std::vector<std::string> &var2, int var3) // 用于Ri = （Rj∈RA）argmax（a∈jicunqimiaoshufu（Rj））min a.shiyongbiaozhi；
+std::string func5(std::vector<std::string> &var2, int var3) // 用于jicunqi = （Rj∈RA）argmax（a∈jicunqimiaoshufu（Rj））min a.shiyongbiaozhi；
 {
     std::string var1;
     int maxshiyongbiaozhi = INT32_MIN; // maxshiyongbiaozhi=-∞
-    int kuaiIndex = func1(var3); // kuaiIndex=FindBlockIndex（q）；
-    for (auto &Ri : var2)
-    {                          // for each Ri∈RA
-        bool hasFound = false; // Ri中的变量是否在后续的四元式中使用
-        for (int i = var3 + 1; i <= global_jibenkuai[kuaiIndex].back(); i++)
+    int kuaisuoyin = func1(var3); // kuaisuoyin=FindBlockIndex（q）；
+    for (auto &jicunqi : var2)
+    {                          // for each jicunqi∈RA
+        bool faxianle = false; // jicunqi中的变量是否在后续的四元式中使用
+        for (int i = var3 + 1; i <= global_jibenkuai[kuaisuoyin].back(); i++)
         { // 遍历四元式
-            if (jicunqimiaoshufu[Ri].find(Siyuanshis[i].left_caozuoshu.val) != jicunqimiaoshufu[Ri].end())
+            if (jicunqimiaoshufu[jicunqi].find(Siyuanshis[i].left_caozuoshu.val) != jicunqimiaoshufu[jicunqi].end())
             { // 同理
-                hasFound = true;
+                faxianle = true;
                 if (i > maxshiyongbiaozhi)
                 {
                     maxshiyongbiaozhi = i;
-                    var1 = Ri;
+                    var1 = jicunqi;
                 }
                 break;
             }
-            else if (jicunqimiaoshufu[Ri].find(Siyuanshis[i].caozuoshu_right.val) != jicunqimiaoshufu[Ri].end())
+            else if (jicunqimiaoshufu[jicunqi].find(Siyuanshis[i].caozuoshu_right.val) != jicunqimiaoshufu[jicunqi].end())
             {
-                hasFound = true;
+                faxianle = true;
                 if (i > maxshiyongbiaozhi)
                 {
                     maxshiyongbiaozhi = i;
-                    var1 = Ri;
+                    var1 = jicunqi;
                 }
                 break;
             }
         }
-        if (!hasFound)
-        {             // 如果Ri中的变量在后续的四元式中没有使用
-            var1 = Ri; // 返回Ri
+        if (!faxianle)
+        {             // 如果jicunqi中的变量在后续的四元式中没有使用
+            var1 = jicunqi; // 返回jicunqi
             break;
         }
     }
@@ -238,72 +238,72 @@ std::string func5(std::vector<std::string> &var2, int var3) // 用于Ri = （Rj�
 
 std::string func6(int var3) // 局部寄存器分配的伪代码
 {
-    Siyuanshi q = Siyuanshis[var3];       // 四元式q
-    std::string z = q.value.val;           // 左值z
-    std::string x = q.left_caozuoshu.val;  // 左操作数x
-    std::string y = q.caozuoshu_right.val; // 右操作数y
+    Siyuanshi siyuanshi = Siyuanshis[var3];       // 四元式q
+    std::string z = siyuanshi.value.val;           // 左值z
+    std::string x = siyuanshi.left_caozuoshu.val;  // 左操作数x
+    std::string y = siyuanshi.caozuoshu_right.val; // 右操作数y
     if (!type_number(x) && x != "-")
     { // 如果x是变量
-        for (auto &Ri : dizhimiaoshufu[x].registerSet)
-        { // if 存在Ri∈dizhimiaoshufu（x）
-            if (jicunqimiaoshufu[Ri] == std::set<std::string>{x} && (x == z || !q.left_caozuoshu.Huoyue))
-            { // 并且jicunqimiaoshufu（Ri）={x}并且（x=z或者x.Huoyue=N）
-                return Ri;
+        for (auto &jicunqi : dizhimiaoshufu[x].registerSet)
+        { // if 存在jicunqi∈dizhimiaoshufu（x）
+            if (jicunqimiaoshufu[jicunqi] == std::set<std::string>{x} && (x == z || !siyuanshi.left_caozuoshu.Huoyue))
+            { // 并且jicunqimiaoshufu（jicunqi）={x}并且（x=z或者x.Huoyue=N）
+                return jicunqi;
             }
         }
     }
-    for (auto &Ri : jicunqi)
-    { // if 存在Ri
-        if (jicunqimiaoshufu[Ri].empty())
-        {              // 使得jicunqimiaoshufu（Ri）为空
-            return Ri; // return Ri；
+    for (auto &jicunqi : jicunqi)
+    { // if 存在jicunqi
+        if (jicunqimiaoshufu[jicunqi].empty())
+        {              // 使得jicunqimiaoshufu（jicunqi）为空
+            return jicunqi; // return jicunqi；
         }
     }
     std::vector<std::string> RA;
-    for (auto &Ri : jicunqi)
-    { // RA={Ri|Ri∈R
-        if (!jicunqimiaoshufu[Ri].empty())
-        { // 并且jicunqimiaoshufu（Ri）中包含主存单元}；
-            RA.push_back(Ri);
+    for (auto &jicunqi : jicunqi)
+    { // RA={jicunqi|jicunqi∈R
+        if (!jicunqimiaoshufu[jicunqi].empty())
+        { // 并且jicunqimiaoshufu（jicunqi）中包含主存单元}；
+            RA.push_back(jicunqi);
         }
     }
     if (RA.empty())
     { // if RA为空then RA=R；
         RA = jicunqi;
     }
-    std::string Ri;
-    bool hasFound = true;
+    std::string jicunqi;
+    bool faxianle = true;
     for (auto &Rj : RA)
     { // if 存在Rj∈RA
-        hasFound = true;
+        faxianle = true;
         for (auto &a : jicunqimiaoshufu[Rj])
         { // 并且任意a∈jicunqimiaoshufu（Rj）都有a∈dizhimiaoshufu（a）
             if (dizhimiaoshufu[a].memory.find(a) == dizhimiaoshufu[a].memory.end())
             {
-                hasFound = false;
+                faxianle = false;
                 break;
             }
         }
-        if (hasFound)
-        { // Ri=Rj
-            Ri = Rj;
+        if (faxianle)
+        { // jicunqi=Rj
+            jicunqi = Rj;
             break;
         }
     }
-    if (!hasFound)
+    if (!faxianle)
     {
-        Ri = func5(RA, var3); // Ri = （Rj∈RA）argmax（a∈jicunqimiaoshufu（Rj））min a.shiyongbiaozhi；
+        jicunqi = func5(RA, var3); // jicunqi = （Rj∈RA）argmax（a∈jicunqimiaoshufu（Rj））min a.shiyongbiaozhi；
     }
-    for (auto &a : jicunqimiaoshufu[Ri])
-    { // foreach a∈jicunqimiaoshufu（Ri）do
+    for (auto &a : jicunqimiaoshufu[jicunqi])
+    { // foreach a∈jicunqimiaoshufu（jicunqi）do
         if (dizhimiaoshufu[a].memory.find(a) == dizhimiaoshufu[a].memory.end() && a != z)
         {                                                               // if a不属于dizhimiaoshufu（a）并且a≠z
-            std::cout << "mov " << func4(a) << ", " << Ri << "\n"; // 生成代码：mov a，Ri；
+            std::cout << "mov " << func4(a) << ", " << jicunqi << "\n"; // 生成代码：mov a，jicunqi；
         }
-        if (a == x || (a == y && jicunqimiaoshufu[Ri].find(x) != jicunqimiaoshufu[Ri].end()))
-        {                         // if a = x或者（a=y并且x∈jicunqimiaoshufu（Ri））
-            dizhimiaoshufu[a].memory = {a}; // dizhimiaoshufu（a）={a，Ri}；
-            dizhimiaoshufu[a].registerSet = {Ri};
+        if (a == x || (a == y && jicunqimiaoshufu[jicunqi].find(x) != jicunqimiaoshufu[jicunqi].end()))
+        {                         // if a = x或者（a=y并且x∈jicunqimiaoshufu（jicunqi））
+            dizhimiaoshufu[a].memory = {a}; // dizhimiaoshufu（a）={a，jicunqi}；
+            dizhimiaoshufu[a].registerSet = {jicunqi};
         }
         else
         { // else dizhimiaoshufu（a）= {a}；
@@ -311,8 +311,8 @@ std::string func6(int var3) // 局部寄存器分配的伪代码
             dizhimiaoshufu[a].registerSet = {};
         }
     }
-    jicunqimiaoshufu[Ri].clear(); // jicunqimiaoshufu（Ri）= jicunqimiaoshufu（Ri）- {a}；
-    return Ri;
+    jicunqimiaoshufu[jicunqi].clear(); // jicunqimiaoshufu（jicunqi）= jicunqimiaoshufu（jicunqi）- {a}；
+    return jicunqi;
 }
 
 void func7(std::string var, std::set<std::string> &huoyuebianliang)
@@ -327,7 +327,7 @@ void func7(std::string var, std::set<std::string> &huoyuebianliang)
     }
 }
 
-void func8(int var3, int kuaiIndex)
+void func8(int var3, int kuaisuoyin)
 {
     Siyuanshi q = Siyuanshis[var3];
     auto x = q.left_caozuoshu.val;
@@ -359,7 +359,7 @@ void func8(int var3, int kuaiIndex)
         }
         if (!type_number(x))
         {
-            func7(x, huoyuebianliang[kuaiIndex]); // func7（x，Bi）；
+            func7(x, huoyuebianliang[kuaisuoyin]); // func7（x，Bi）；
         }
     }
     jicunqimiaoshufu[R].insert(z);             // jicunqimiaoshufu（R）+={z}；
@@ -368,7 +368,7 @@ void func8(int var3, int kuaiIndex)
     dizhimiaoshufu[z].memory.clear();        // dizhimiaoshufu（z）-={z}；
 }
 
-void func9(int var3, int kuaiIndex)
+void func9(int var3, int kuaisuoyin)
 { // if qij形如（θ，x，y，z）then
     Siyuanshi siyuanshi = Siyuanshis[var3];
     auto x = siyuanshi.left_caozuoshu.val;
@@ -438,21 +438,21 @@ void func9(int var3, int kuaiIndex)
     dizhimiaoshufu[z].memory.clear();
     if (!type_number(x))
     {
-        func7(x, huoyuebianliang[kuaiIndex]); // func7（x，Bi）
+        func7(x, huoyuebianliang[kuaisuoyin]); // func7（x，Bi）
     }
     if (!type_number(y))
     {
-        func7(y, huoyuebianliang[kuaiIndex]); // func7（y，Bi）；
+        func7(y, huoyuebianliang[kuaisuoyin]); // func7（y，Bi）；
     }
 }
 
 void func10()
 {
-    int kuaiIndex = 0;
-    while (kuaiIndex < global_jibenkuai.size())
+    int kuaisuoyin = 0;
+    while (kuaisuoyin < global_jibenkuai.size())
     {
-        auto &kuai = global_jibenkuai[kuaiIndex];
-        if (biaoqianbiaozhiwei[global_jibenkuai[kuaiIndex].front()] == 1)
+        auto &kuai = global_jibenkuai[kuaisuoyin];
+        if (biaoqianbiaozhiwei[global_jibenkuai[kuaisuoyin].front()] == 1)
         {
             std::cout << "?" + std::to_string(kuai.front()) + ":\n";
         }
@@ -461,11 +461,11 @@ void func10()
 
             if (theta(Siyuanshis[j]))
             {
-                func9(j, kuaiIndex);
+                func9(j, kuaisuoyin);
             }
             else if (type_x(Siyuanshis[j]))
             {
-                func8(j, kuaiIndex);
+                func8(j, kuaisuoyin);
             }
             else if (read_or_write(Siyuanshis[j]))
             {
@@ -483,12 +483,12 @@ void func10()
                     std::cout << "(" << func4(Siyuanshis[j].value.val) << ")\n";
                     if (!type_number(Siyuanshis[j].value.val))
                     {
-                        func7(Siyuanshis[j].value.val, huoyuebianliang[kuaiIndex]);
+                        func7(Siyuanshis[j].value.val, huoyuebianliang[kuaisuoyin]);
                     }
                 }
             }
         }
-        for (auto a : huoyuebianliang[kuaiIndex])
+        for (auto a : huoyuebianliang[kuaisuoyin])
         { // foreach a∈huoyuebianliang（Bi）
             if (dizhimiaoshufu[a].memory.find(a) == dizhimiaoshufu[a].memory.end())
             { // 并且a不属于dizhimiaoshufu（a）do
@@ -570,7 +570,7 @@ void func10()
         jicunqimiaoshufu.clear(); // 所有寄存器描述符置空
         dizhimiaoshufu.clear(); // 所有变量的地址描述符置空
 
-        kuaiIndex++;
+        kuaisuoyin++;
     }
 }
 
