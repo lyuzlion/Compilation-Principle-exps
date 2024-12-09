@@ -6,7 +6,7 @@ using namespace std;
 struct Siyuanshixiang{ //每个四元式中的项目
     std::string val;        //该项目的值
     int shiyong = -1;      //该项目的待用信息
-    bool active = false; //该项目的活跃信息
+    bool Huoyue = false; //该项目的活跃信息
     Siyuanshixiang(std::string val):val(val){}
     Siyuanshixiang(){}
 };
@@ -30,10 +30,10 @@ struct Fuhaobiaoxiang {    //符号表中的项目
     std::string name="", type="", value="";        //变量值
     int deltaPianYiLiang = -1;          //变量的偏移量
     int shiyongbiaozhi = -1;           //变量的待用信息
-    bool isTemp = true;     //是否是临时变量
-    bool active = false;      //变量的活跃信息
+    bool zhongjian = true;     //是否是临时变量
+    bool Huoyue = false;      //变量的活跃信息
     Fuhaobiaoxiang(){}
-    Fuhaobiaoxiang(bool isTemp):isTemp(isTemp){}
+    Fuhaobiaoxiang(bool zhongjian):zhongjian(zhongjian){}
 };
 
 std::map<std::string, Fuhaobiaoxiang> huhaobiao;  

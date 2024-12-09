@@ -73,12 +73,9 @@ void func2() // 获取基本块
             {
                 if (rukou[j])
                 {                          // if qj是基本块的入口
-                    std::vector<int> temp; // qi,qi+1,...,qj-1加入基本块
-                    for (int k = i; k < j; k++)
-                    {
-                        temp.push_back(k);
-                    }
-                    jbks.insert(temp);
+                    std::vector<int> tmp(j - i);
+                    std::iota(tmp.begin(), tmp.end(), i);
+                    jbks.insert(tmp);
                     i = j; // i=j
                     break;
                 }
@@ -86,12 +83,9 @@ void func2() // 获取基本块
                 {
                     if (Siyuanshis[j].caozuofu.val[0] == 'j' || Siyuanshis[j].caozuofu.val == "ret" || Siyuanshis[j].caozuofu.val == "End")
                     {                          // if qj是停机或转移语句
-                        std::vector<int> temp; // qi,qi+1,...,qj加入基本块
-                        for (int k = i; k <= j; k++)
-                        {
-                            temp.push_back(k);
-                        }
-                        jbks.insert(temp);
+                        std::vector<int> tmp(j - i + 1);
+                        std::iota(tmp.begin(), tmp.end(), i);
+                        jbks.insert(tmp);
                         i = j + 1; // i=j+1
                         break;
                     }
@@ -108,7 +102,7 @@ void func2() // 获取基本块
 
 std::set<std::string> func3(std::vector<int> &block) // 求解待用信息
 {
-    std::set<std::string> res; // 当前块出口处的活跃变量集合
+    std::set<std::string> var1; // 当前块出口处的活跃变量集合
     for (auto &i : block)
     {                                                     // shiyongbiaozhi在构造时已经是非待用
         std::string x = Siyuanshis[i].left_caozuoshu.val; // 对于左右操作数和左值
@@ -117,36 +111,36 @@ std::set<std::string> func3(std::vector<int> &block) // 求解待用信息
         if (x[0] == 'T')
         {
             huhaobiao[x].shiyongbiaozhi = -1;
-            if (!huhaobiao[x].isTemp)
+            if (!huhaobiao[x].zhongjian)
             {                                 // 如果x不是临时变量
-                huhaobiao[x].active = true; // x是活跃的
-                if (find(res.begin(), res.end(), x) == res.end())
+                huhaobiao[x].Huoyue = true; // x是活跃的
+                if (find(var1.begin(), var1.end(), x) == var1.end())
                 { // 将x加入当前块出口处的活跃变量集合
-                    res.insert(x);
+                    var1.insert(x);
                 }
             }
         }
         if (y[0] == 'T')
         {
             huhaobiao[y].shiyongbiaozhi = -1;
-            if (!huhaobiao[y].isTemp)
+            if (!huhaobiao[y].zhongjian)
             {
-                huhaobiao[y].active = true;
-                if (find(res.begin(), res.end(), y) == res.end())
+                huhaobiao[y].Huoyue = true;
+                if (find(var1.begin(), var1.end(), y) == var1.end())
                 {
-                    res.insert(y);
+                    var1.insert(y);
                 }
             }
         }
         if (z[0] == 'T')
         {
             huhaobiao[z].shiyongbiaozhi = -1;
-            if (!huhaobiao[z].isTemp)
+            if (!huhaobiao[z].zhongjian)
             {
-                huhaobiao[z].active = true;
-                if (find(res.begin(), res.end(), z) == res.end())
+                huhaobiao[z].Huoyue = true;
+                if (find(var1.begin(), var1.end(), z) == var1.end())
                 {
-                    res.insert(z);
+                    var1.insert(z);
                 }
             }
         }
@@ -156,27 +150,27 @@ std::set<std::string> func3(std::vector<int> &block) // 求解待用信息
         int index = block[i];
         if (Siyuanshis[index].value.val[0] == 'T')
         {
-            Siyuanshis[index].value.shiyong = huhaobiao[Siyuanshis[index].value.val].shiyongbiaozhi; // 符号表中变量z的shiyongbiaozhi和active赋值给四元式qi的z变量；
-            Siyuanshis[index].value.active = huhaobiao[Siyuanshis[index].value.val].active;
-            huhaobiao[Siyuanshis[index].value.val].active = false; // 符号表中变量z的shiyongbiaozhi和active分别置为-和N；
+            Siyuanshis[index].value.shiyong = huhaobiao[Siyuanshis[index].value.val].shiyongbiaozhi; // 符号表中变量z的shiyongbiaozhi和Huoyue赋值给四元式qi的z变量；
+            Siyuanshis[index].value.Huoyue = huhaobiao[Siyuanshis[index].value.val].Huoyue;
+            huhaobiao[Siyuanshis[index].value.val].Huoyue = false; // 符号表中变量z的shiyongbiaozhi和Huoyue分别置为-和N；
             huhaobiao[Siyuanshis[index].value.val].shiyongbiaozhi = -1;
         }
         if (Siyuanshis[index].left_caozuoshu.val[0] == 'T')
         {
-            Siyuanshis[index].left_caozuoshu.shiyong = huhaobiao[Siyuanshis[index].left_caozuoshu.val].shiyongbiaozhi; // 符号表中变量x的shiyongbiaozhi和active赋值给四元式qi的x变量
-            Siyuanshis[index].left_caozuoshu.active = huhaobiao[Siyuanshis[index].left_caozuoshu.val].active;
-            huhaobiao[Siyuanshis[index].left_caozuoshu.val].active = true; // 符号表中变量x的shiyongbiaozhi和active分别置为qi和Y
+            Siyuanshis[index].left_caozuoshu.shiyong = huhaobiao[Siyuanshis[index].left_caozuoshu.val].shiyongbiaozhi; // 符号表中变量x的shiyongbiaozhi和Huoyue赋值给四元式qi的x变量
+            Siyuanshis[index].left_caozuoshu.Huoyue = huhaobiao[Siyuanshis[index].left_caozuoshu.val].Huoyue;
+            huhaobiao[Siyuanshis[index].left_caozuoshu.val].Huoyue = true; // 符号表中变量x的shiyongbiaozhi和Huoyue分别置为qi和Y
             huhaobiao[Siyuanshis[index].left_caozuoshu.val].shiyongbiaozhi = index;
         }
         if (Siyuanshis[index].caozuoshu_right.val[0] == 'T')
         {
-            Siyuanshis[index].caozuoshu_right.shiyong = huhaobiao[Siyuanshis[index].caozuoshu_right.val].shiyongbiaozhi; // 符号表中变量y的shiyongbiaozhi和active赋值给四元式qi的y变量
-            Siyuanshis[index].caozuoshu_right.active = huhaobiao[Siyuanshis[index].caozuoshu_right.val].active;
-            huhaobiao[Siyuanshis[index].caozuoshu_right.val].active = true; // 符号表中变量y的shiyongbiaozhi和active分别置为qi和Y
+            Siyuanshis[index].caozuoshu_right.shiyong = huhaobiao[Siyuanshis[index].caozuoshu_right.val].shiyongbiaozhi; // 符号表中变量y的shiyongbiaozhi和Huoyue赋值给四元式qi的y变量
+            Siyuanshis[index].caozuoshu_right.Huoyue = huhaobiao[Siyuanshis[index].caozuoshu_right.val].Huoyue;
+            huhaobiao[Siyuanshis[index].caozuoshu_right.val].Huoyue = true; // 符号表中变量y的shiyongbiaozhi和Huoyue分别置为qi和Y
             huhaobiao[Siyuanshis[index].caozuoshu_right.val].shiyongbiaozhi = index;
         }
     }
-    return res; // 返回当前块出口处的活跃变量集合
+    return var1; // 返回当前块出口处的活跃变量集合
 }
 
 std::string func4(std::string var) // 获取变量的地址
@@ -204,7 +198,7 @@ std::string func4(std::string var) // 获取变量的地址
 
 std::string func5(std::vector<std::string> &allR, int index) // 用于Ri = （Rj∈RA）argmax（a∈jicunqimiaoshufu（Rj））min a.shiyongbiaozhi；
 {
-    std::string res;
+    std::string var1;
     int maxshiyongbiaozhi = INT32_MIN; // maxshiyongbiaozhi=-∞
     int blockIndex = func1(index); // blockIndex=FindBlockIndex（q）；
     for (auto &Ri : allR)
@@ -218,7 +212,7 @@ std::string func5(std::vector<std::string> &allR, int index) // 用于Ri = （Rj
                 if (i > maxshiyongbiaozhi)
                 {
                     maxshiyongbiaozhi = i;
-                    res = Ri;
+                    var1 = Ri;
                 }
                 break;
             }
@@ -228,18 +222,18 @@ std::string func5(std::vector<std::string> &allR, int index) // 用于Ri = （Rj
                 if (i > maxshiyongbiaozhi)
                 {
                     maxshiyongbiaozhi = i;
-                    res = Ri;
+                    var1 = Ri;
                 }
                 break;
             }
         }
         if (!hasFound)
         {             // 如果Ri中的变量在后续的四元式中没有使用
-            res = Ri; // 返回Ri
+            var1 = Ri; // 返回Ri
             break;
         }
     }
-    return res;
+    return var1;
 }
 
 std::string func6(int index) // 局部寄存器分配的伪代码
@@ -252,8 +246,8 @@ std::string func6(int index) // 局部寄存器分配的伪代码
     { // 如果x是变量
         for (auto &Ri : dizhimiaoshufu[x].registerSet)
         { // if 存在Ri∈dizhimiaoshufu（x）
-            if (jicunqimiaoshufu[Ri] == std::set<std::string>{x} && (x == z || !q.left_caozuoshu.active))
-            { // 并且jicunqimiaoshufu（Ri）={x}并且（x=z或者x.active=N）
+            if (jicunqimiaoshufu[Ri] == std::set<std::string>{x} && (x == z || !q.left_caozuoshu.Huoyue))
+            { // 并且jicunqimiaoshufu（Ri）={x}并且（x=z或者x.Huoyue=N）
                 return Ri;
             }
         }
@@ -457,16 +451,16 @@ void clearSymbolTable()
     deltaPianYiLiang = InitdeltaPianYiLiang;
     for (auto &a : huhaobiao)
     {
-        if (a.second.isTemp)
+        if (a.second.zhongjian)
         {
             a.second.shiyongbiaozhi = -1;
-            a.second.active = false;
+            a.second.Huoyue = false;
             a.second.deltaPianYiLiang = -1;
         }
     }
 }
 
-void genCode()
+void func10()
 {
     int blockIndex = 0;
     while (blockIndex < global_jibenkuai.size())
@@ -516,7 +510,7 @@ void genCode()
                 {
                     for (auto reg : dizhimiaoshufu[a].registerSet)
                     { // Ra=dizhimiaoshufu（a）中的寄存器；
-                        if (lishixinxi[a].active)
+                        if (lishixinxi[a].Huoyue)
                         {
                             std::cout << "mov " << func4(a) << ", " << reg << "\n"; // 生成代码：mov a，Ra；
                         }
@@ -673,6 +667,6 @@ int main()
         i++;
     }
 
-    genCode();
+    func10();
     return 0;
 }
