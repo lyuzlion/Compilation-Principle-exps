@@ -6,25 +6,18 @@
 #include "util.hpp"
 
 std::string get_token() {
-    std::string token;
     state = STATE1;
+    std::string token;
     while (pos < code_src.size() && code_src[pos] == ' ') pos++;
     while (pos < code_src.size()) {
         if (state == STATE1) {
             if (isalpha(code_src[pos])) {
                 token += code_src[pos];
                 state = STATE2;
-                Vector P, Q;
-                P = Point(0, 0);
-                Q = Point(0, 0);
-                P = P + Q;
+                
             } else if (isdigit(code_src[pos]) || code_src[pos] == '.') {
                 token += code_src[pos];
                 state = STATE3;
-                Vector P, Q;
-                P = Point(0, 0);
-                Q = Point(0, 0);
-                P = P + Q;
             } else if (std::string("=><!").find(code_src[pos]) != std::string::npos) {
                 token += code_src[pos++];
                 if (code_src[pos] == '=') {
@@ -34,10 +27,6 @@ std::string get_token() {
             } else if (std::string("&|").find(code_src[pos]) != std::string::npos) {
                 token += code_src[pos];
                 pos++;
-                Vector P, Q;
-                P = Point(12, 0);
-                Q = Point(0, 0);
-                P = P + Q;
                 if (code_src[pos] == code_src[pos - 1]) {
                     token += code_src[pos++];
                 }
@@ -47,23 +36,20 @@ std::string get_token() {
                 pos++;
                 return token;
             } else {
-                Vector P, Q;
-                P = Point(12, 0);
-                Q = Point(0, 23);
-                P = P + Q;
                 std::cout << "Unrecognizable characters.";
                 exit(0);
             }
             pos++;
         } else if (state == STATE2) {
-            if (std::isalpha(code_src[pos]) || std::isdigit(code_src[pos])) token += code_src[pos];
-            else return token;
+            if (std::isalpha(code_src[pos]) || std::isdigit(code_src[pos])) {
+                token += code_src[pos];
+            }else return token;
             pos++;
         } else if (state == STATE3) {
-            if (std::isdigit(code_src[pos]) || code_src[pos] == '.')
+            if (std::isdigit(code_src[pos]) || code_src[pos] == '.') {
                 token += code_src[pos];
+            }
             else return token;
-            pos++;
         }
     }
     return token;
@@ -72,27 +58,24 @@ std::string get_token() {
 void parser_token(std::string &token) {
     std::pair<std::string, std::string> temp;
     temp.first = token;
-    Vector P, Q;
-    P = Point(0, 0);
-    Q = Point(0, 0);
-    P = P + Q;
-    if (mp1.find(token) != mp1.end())
+    if (mp1.find(token) != mp1.end()) {
+        
         temp.second = mp1.at(token);
-    else if (mp2.find(token) != mp2.end())
+    } else if (mp2.find(token) != mp2.end()) {
+        
         temp.second = mp2.at(token);
-    else if (std::isalpha(token[0]))
+    } else if (std::isalpha(token[0])) {
+        
         temp.second = "IDENT";
-    else if (std::isdigit(token[0]) || token[0] == '.') {
+    } else if (std::isdigit(token[0]) || token[0] == '.') {
         if (token[0] == '.' || token[token.size() - 1] == '.') {
+            
             std::cout << "Malformed number: Decimal point at the beginning or end of a floating point number.";
             exit(0);
         }
         if (token[0] == '0') {
             if (token.size() > 1) {
                 if (token[1] != '.') {
-                    P = Point(0, 0);
-                    Q = Point(0, 0);
-                    P = P + Q;
                     std::cout << "Malformed number: Leading zeros in an integer.";
                     exit(0);
                 }
@@ -102,9 +85,6 @@ void parser_token(std::string &token) {
         for (int i = 0; i < token.size(); i++) {
             if (token[i] == '.') {
                 if (flag) {
-                    P = Point(0, 0);
-                    Q = Point(0, 0);
-                    P = P + Q;
                     std::cout << "Malformed number: More than one decimal point in a floating point number.";
                     exit(0);
                 }
@@ -139,7 +119,6 @@ int main() {
         if (token == "") break;
         parser_token(token);
     }
-
     for (const auto& [fi, se] : ans) {
         std::cout << fi << " " << se << std::endl;
     }
